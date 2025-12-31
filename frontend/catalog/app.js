@@ -1,15 +1,27 @@
-const CHAT_ORCHESTRATOR_URL = 'http://localhost:3001';
+const CHAT_BASE_URL = 'http://localhost:3001';
 
 // Model ID fijo (fake)
 const MODEL_ID = 'model_stub_001';
 
-document.getElementById('chatButton').addEventListener('click', async () => {
+// Referencias a elementos del DOM
+const chatBtn = document.getElementById('chatBtn');
+const status = document.getElementById('status');
+const statusText = document.getElementById('statusText');
+
+chatBtn.addEventListener('click', async () => {
   console.log('[CATALOG] Iniciando flujo de chat...');
+  
+  // 1) Deshabilitar el botón al hacer click
+  chatBtn.disabled = true;
+  
+  // 2) Mostrar el estado visual ("Conectándote…")
+  statusText.textContent = 'Conectándote…';
+  status.classList.remove('hidden');
   
   try {
     // Paso 1: POST /chat/init
     console.log('[CATALOG] Llamando POST /chat/init con model_id:', MODEL_ID);
-    const initResponse = await fetch(`${CHAT_ORCHESTRATOR_URL}/chat/init`, {
+    const initResponse = await fetch(`${CHAT_BASE_URL}/chat/init`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -29,7 +41,7 @@ document.getElementById('chatButton').addEventListener('click', async () => {
     
     // Paso 2: POST /handoff/create
     console.log('[CATALOG] Llamando POST /handoff/create con session_id:', initData.session_id);
-    const handoffResponse = await fetch(`${CHAT_ORCHESTRATOR_URL}/handoff/create`, {
+    const handoffResponse = await fetch(`${CHAT_BASE_URL}/handoff/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -53,8 +65,12 @@ document.getElementById('chatButton').addEventListener('click', async () => {
     window.location.href = handoffData.handoff_url;
     
   } catch (error) {
+    // 5) Manejar errores mostrando un mensaje amigable
     console.error('[CATALOG] Error en el flujo:', error);
-    alert('Error: ' + error.message);
+    statusText.textContent = 'Error al conectar. Por favor, intenta de nuevo.';
+    
+    // 6) Rehabilitar el botón solo si falla
+    chatBtn.disabled = false;
   }
 });
 
