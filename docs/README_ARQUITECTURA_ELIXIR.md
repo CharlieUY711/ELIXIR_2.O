@@ -64,6 +64,8 @@ La documentación de gobernanza y resiliencia establece normas vigentes que rige
 
 - [NO HACER — Anti-patrones](NO_HACER_ANTIPATRONES.md): Contrato operativo de exclusión y bloqueo de decisiones. Establece anti-patrones innegociables que previenen degradación del modelo económico, violación de separación de capas e introducción de complejidad que compromete la naturaleza del sistema. Cualquier cambio que viole este documento implica rediseño del producto, no evolución incremental.
 
+- [Plan de Operación Inicial](PLAN_OPERACION_INICIAL.md): Define la operación post-producción durante el período inicial de 30–60 días. Establece condiciones de arranque, ritmo operativo, qué monitorear y qué no monitorear, intervenciones permitidas y prohibidas, y señales de éxito y alarma. Congela UX durante el período inicial y tiene carácter normativo como parte del contrato operativo.
+
 Estos documentos forman parte del contrato del sistema en producción y deben consultarse antes de cualquier modificación que afecte la arquitectura canónica de Elixir Platform.
 
 ## Modelo Económico — Resumen Ejecutivo
