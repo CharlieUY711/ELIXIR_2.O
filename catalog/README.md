@@ -1,26 +1,39 @@
-# Catálogo de Modelos
+# Catálogo
 
-## Rol del Módulo
+## Qué Hace el Módulo
 
-El módulo **Catálogo** es la interfaz web frontend que permite a los usuarios explorar, buscar y visualizar el catálogo de modelos disponibles en la plataforma.
+El módulo **Catálogo** es la interfaz web frontend que proporciona atracción visual para explorar y visualizar contenido. Su enfoque principal es la presentación visual atractiva con mucha imagen y poco texto.
 
-## Qué Hace
-
-- Proporciona una interfaz web interactiva para navegar el catálogo
-- Permite búsqueda y filtrado de modelos
-- Muestra información detallada de cada modelo
-- Facilita la interacción del usuario con el sistema
+- Interfaz web interactiva para navegar el catálogo
+- Presentación visual rica en imágenes
+- Experiencia de usuario enfocada en atracción visual
+- Exploración y visualización de contenido
 
 ## Qué NO Hace
 
-- No gestiona la lógica de negocio (eso corresponde al backend)
+- No gestiona lógica de negocio (eso corresponde al backend)
 - No almacena datos directamente (consume APIs)
-- No maneja autenticación/autorización directamente
-- No procesa pagos o transacciones financieras (eso es Elixir)
+- No maneja comunicación con WhatsApp (eso es Chat)
+- No procesa transacciones financieras (eso es Elixir)
+- No gestiona saldo o pagos
 
-## Relación con Otros Módulos
+## Módulos que Consume o Expone
 
-- **Chat/WhatsApp Gateway**: Puede integrarse para notificaciones o soporte en tiempo real
-- **Elixir**: Puede consumir información financiera relacionada con modelos (precios, disponibilidad, etc.)
-- **Backend (futuro)**: Consume APIs REST/GraphQL para obtener datos del catálogo
+### Consume
+- APIs del backend para obtener datos del catálogo
+- Información de Elixir relacionada con disponibilidad financiera (si aplica)
 
+### Expone
+- Interfaz web frontend para usuarios
+- APIs de visualización (si aplica)
+
+## Qué Tipo de Cambios son Aceptables
+
+- Cambios en la interfaz visual y presentación
+- Mejoras en la experiencia de usuario
+- Optimizaciones de rendimiento frontend
+- Actualizaciones de componentes visuales
+- Integración con APIs del backend
+- **NO** cambios que implementen lógica de negocio
+- **NO** cambios que gestionen datos directamente
+- **NO** cambios que procesen transacciones financieras

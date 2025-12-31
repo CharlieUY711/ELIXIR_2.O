@@ -1,14 +1,8 @@
-# Plataforma Modular - Catálogo, Chat y Elixir
+# Elixir Platform (Catálogo + Chat + Elixir)
 
 ## Visión General del Proyecto
 
-Esta plataforma modular está compuesta por tres módulos principales que trabajan de forma integrada:
-
-1. **Catálogo de Modelos** - Frontend web para exploración y visualización de modelos
-2. **Chat / WhatsApp Gateway** - Backend para comunicación en tiempo real
-3. **Elixir** - Módulo financiero interno con integración Nectar
-
-Cada módulo es independiente pero se integra con los demás para proporcionar una experiencia completa al usuario.
+Elixir Platform es una plataforma modular compuesta por tres módulos principales que trabajan de forma integrada para proporcionar una experiencia completa al usuario a través de WhatsApp como interfaz principal.
 
 ## Arquitectura Modular
 
@@ -24,41 +18,49 @@ Cada módulo es independiente pero se integra con los demás para proporcionar u
 └── scripts/          # Scripts de utilidad
 ```
 
-### Principios de la Arquitectura
+## Separación de Responsabilidades
 
-- **Modularidad**: Cada módulo es independiente y puede desarrollarse por separado
-- **Separación de responsabilidades**: Cada módulo tiene un propósito específico y claro
-- **Integración mediante APIs**: Los módulos se comunican a través de interfaces bien definidas
-- **Escalabilidad**: La arquitectura permite escalar cada módulo de forma independiente
+### Catálogo: Atracción Visual
+- Interfaz web frontend para exploración y visualización
+- Enfoque en experiencia visual e interactiva
+- Mucha imagen, poco texto
+- Presentación atractiva del contenido
+
+### Chat: Operación y Ruteo
+- Gateway de WhatsApp para comunicación
+- Ruteo de mensajes y operaciones
+- Interfaz principal de interacción con usuarios
+- Gestión de conversaciones y flujos
+
+### Elixir: Infraestructura Financiera
+- Sistema financiero interno
+- Gestión de saldo y transacciones
+- **Elixir NO gestiona servicios, gestiona saldo**
+- Procesamiento de operaciones financieras
 
 ## Principios Rectores
 
-### 1. Orden de Trabajo
+### 1. WhatsApp como Interfaz
+- WhatsApp es la interfaz principal de interacción con los usuarios
+- La experiencia debe estar optimizada para este canal
+- Integración nativa con WhatsApp Business API
 
-El desarrollo sigue un orden estricto para mantener la disciplina y evitar implementaciones prematuras:
+### 2. BOT Invisible
+- El sistema debe funcionar de manera transparente
+- La experiencia debe sentirse natural, no robótica
+- Interacciones fluidas y contextuales
 
-1. **Modelo de Datos** → Definir primero la estructura de datos y relaciones
-2. **Backend** → Implementar lógica de negocio y APIs
-3. **Frontend** → Construir interfaces de usuario que consuman las APIs
+### 3. Elixir: Gestión de Saldo
+- **Elixir NO gestiona servicios, gestiona saldo**
+- Su responsabilidad es exclusivamente financiera
+- Manejo de transacciones, pagos y balance
+- No debe asumir responsabilidades de otros módulos
 
-### 2. Disciplina Git
-
-- **Commits atómicos**: Cada commit representa un cambio lógico y completo
-- **Mensajes descriptivos**: Usar convenciones de commits (chore, feat, fix, etc.)
-- **Ramas organizadas**: Seguir estrategia de ramas definida
-
-### 3. Documentación
-
-- Cada módulo debe tener su README explicando su rol y responsabilidades
-- Documentar decisiones arquitectónicas importantes
-- Mantener documentación actualizada
-
-### 4. Preparación antes de Implementación
-
-- **NO implementar lógica de negocio** hasta tener el modelo de datos definido
-- **NO crear endpoints** hasta tener el modelo de datos
-- **NO construir UI** hasta tener APIs funcionales
-- **NO agregar dependencias** innecesarias
+### 4. Mucha Imagen, Poco Texto
+- Priorizar contenido visual sobre texto
+- Interfaz rica en imágenes y elementos gráficos
+- Comunicación concisa y efectiva
+- Experiencia visual atractiva
 
 ## Estrategia de Ramas Git
 
@@ -76,42 +78,20 @@ El desarrollo sigue un orden estricto para mantener la disciplina y evitar imple
 
 - **`feature/*`**: Ramas para desarrollo de nuevas funcionalidades
   - Nomenclatura: `feature/nombre-descriptivo`
-  - Ejemplo: `feature/catalog-search`, `feature/whatsapp-integration`
   - Se crean desde `develop`
   - Se mergean de vuelta a `develop` cuando están completas
-
-- **`hotfix/*`**: Ramas para correcciones urgentes en producción
-  - Nomenclatura: `hotfix/descripcion-bug`
-  - Se crean desde `main`
-  - Se mergean a `main` y `develop`
 
 ### Flujo de Trabajo
 
 ```
 main (estable)
   ↑
-  | (hotfixes)
   |
 develop (integración)
   ↑
-  | (features)
   |
 feature/* (desarrollo)
 ```
-
-### Convenciones de Commits
-
-Usar formato convencional:
-
-- `chore:` - Cambios en configuración, estructura, herramientas
-- `feat:` - Nueva funcionalidad
-- `fix:` - Corrección de bugs
-- `docs:` - Cambios en documentación
-- `refactor:` - Refactorización de código
-- `test:` - Agregar o modificar tests
-- `style:` - Cambios de formato (no afectan funcionalidad)
-
-Ejemplo: `feat(catalog): add search functionality`
 
 ## Estado Actual del Proyecto
 
@@ -120,19 +100,10 @@ Ejemplo: `feat(catalog): add search functionality`
 - ✅ Repositorio Git inicializado
 - ✅ Estructura de carpetas creada
 - ✅ Documentación base preparada
-- ✅ .gitignore configurado
 - ⏳ Pendiente: Definición de modelo de datos
 - ⏳ Pendiente: Implementación de lógica de negocio
 - ⏳ Pendiente: Desarrollo de APIs
 - ⏳ Pendiente: Construcción de interfaces
-
-## Próximos Pasos
-
-1. Definir modelo de datos (documento de definiciones clave)
-2. Implementar backend de cada módulo
-3. Desarrollar APIs de integración
-4. Construir frontend del catálogo
-5. Integrar módulos
 
 ## Documentación Adicional
 
@@ -140,5 +111,4 @@ Ejemplo: `feat(catalog): add search functionality`
   - [`catalog/README.md`](catalog/README.md)
   - [`chat/README.md`](chat/README.md)
   - [`elixir/README.md`](elixir/README.md)
-- Documento madre: [`docs/Definiciones_Clave_Plataforma.md`](docs/Definiciones_Clave_Plataforma.md) (pendiente)
-
+- Documentación general: [`docs/README.md`](docs/README.md)
