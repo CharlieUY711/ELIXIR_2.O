@@ -62,6 +62,8 @@ La documentación de gobernanza y resiliencia establece normas vigentes que rige
 
 - [Estrés y Abuso](ESTRES_Y_ABUSO.md): Define la respuesta canónica del sistema bajo condiciones adversas, el mapa de absorción por capas, las respuestas específicas por escenario y el checklist de resistencia.
 
+- [NO HACER — Anti-patrones](NO_HACER_ANTIPATRONES.md): Contrato operativo de exclusión y bloqueo de decisiones. Establece anti-patrones innegociables que previenen degradación del modelo económico, violación de separación de capas e introducción de complejidad que compromete la naturaleza del sistema. Cualquier cambio que viole este documento implica rediseño del producto, no evolución incremental.
+
 Estos documentos forman parte del contrato del sistema en producción y deben consultarse antes de cualquier modificación que afecte la arquitectura canónica de Elixir Platform.
 
 ## Modelo Económico — Resumen Ejecutivo
