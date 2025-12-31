@@ -66,7 +66,7 @@ La documentación de gobernanza y resiliencia establece normas vigentes que rige
 
 - [Plan de Operación Inicial](PLAN_OPERACION_INICIAL.md): Define la operación post-producción durante el período inicial de 30–60 días. Establece condiciones de arranque, ritmo operativo, qué monitorear y qué no monitorear, intervenciones permitidas y prohibidas, y señales de éxito y alarma. Congela UX durante el período inicial y tiene carácter normativo como parte del contrato operativo.
 
-- [Runbook de Incidentes](RUNBOOK_INCIDENTES.md): Define la respuesta ante fallos reales del sistema. Establece clasificación de incidentes, protocolos de respuesta y prohibiciones operativas. Tiene prioridad sobre continuidad operativa y bloquea respuestas impulsivas que degraden el sistema. El runbook protege control, economía y silencio antes que disponibilidad total.
+- [Runbook de Incidentes](RUNBOOK_INCIDENTES.md): Define la respuesta ante fallos reales del sistema. Establece clasificación de incidentes (Tipo I a V), protocolos de respuesta y prohibiciones operativas. Este documento tiene prioridad sobre continuidad operativa y bloquea respuestas impulsivas que degraden el sistema. El runbook protege control, economía y silencio antes que disponibilidad total. Define QUÉ HACER y QUÉ NO HACER ante incidentes sin violar el contrato de Elixir.
 
 Estos documentos forman parte del contrato del sistema en producción y deben consultarse antes de cualquier modificación que afecte la arquitectura canónica de Elixir Platform.
 
