@@ -48,3 +48,19 @@ El anti-pattern de tomar decisiones económicas sin consultar Elixir Core viola 
 
 El anti-pattern de crear handoffs permanentes o reutilizables compromete la seguridad y viola el principio de acceso temporal controlado. Los handoffs deben tener TTL corto, uso único y validación estricta de condiciones antes de permitir acceso.
 
+## Gobernanza y Resiliencia
+
+La gobernanza post-producción y la resiliencia bajo estrés forman parte del contrato operativo de Elixir Platform. Estos aspectos definen cómo el sistema mantiene su integridad arquitectónica en producción, cómo evoluciona de forma controlada y cómo resiste condiciones adversas.
+
+La documentación de gobernanza y resiliencia establece normas vigentes que rigen la operación del sistema en producción. Estos documentos son parte integral del contrato arquitectónico y deben respetarse tanto como los principios innegociables del sistema.
+
+### Documentos de gobernanza y resiliencia
+
+- [Gobernanza Post-Producción](GOBERNANZA_POST_PRODUCCION.md): Define el proceso de cambio controlado, la autoridad única de Elixir Core, la clasificación de modificaciones permitidas y el ritual de mantenimiento arquitectónico.
+
+- [Orden Recomendado Post-Producción](ORDEN_RECOMENDADO_POST_PRODUCCION.md): Establece la secuencia obligatoria de trabajo post-HITO 4, priorizando resistencia a estrés, luego evolución interna de Nectar, finalmente operación estable.
+
+- [Estrés y Abuso](ESTRES_Y_ABUSO.md): Define la respuesta canónica del sistema bajo condiciones adversas, el mapa de absorción por capas, las respuestas específicas por escenario y el checklist de resistencia.
+
+Estos documentos forman parte del contrato del sistema en producción y deben consultarse antes de cualquier modificación que afecte la arquitectura canónica de Elixir Platform.
+
