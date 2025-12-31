@@ -228,3 +228,9 @@ Ejecutar tests obligatorios:
 
 PR 6 - Audit & observability hardening implementado. Se introducen eventos de auditoría internos que permiten observabilidad y control sin exponer razones ni decisiones detalladas. El sistema mantiene deny-by-default y fail-closed absoluto. Cada decisión es auditable internamente sin revelar por qué fue tomada.
 
+## Baseline Productiva
+
+**Elixir Core v1.0 ha sido congelado como baseline productiva.**
+
+Cambios posteriores requieren PR explícito y justificación. El sistema está en estado operativo estable con garantías de fail-closed, auditoría completa y protección contra estrés y abuso.
+
