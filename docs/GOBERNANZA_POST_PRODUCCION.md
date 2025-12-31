@@ -26,6 +26,8 @@ Los cambios condicionales requieren evaluación formal y justificación arquitec
 
 Los cambios prohibidos son aquellos que violan principios innegociables, que mezclan responsabilidades entre capas, que crean dependencias permanentes con canales externos, que almacenan contenido de conversación y que toman decisiones económicas sin consultar Elixir Core.
 
+Los cambios prohibidos incluyen exponer Nectar al usuario, permitir compra o venta de Nectar, mostrar saldos en Nectar, mostrar equivalencias o precios en Nectar, mostrar comisiones internas o reparto económico, e introducir wallets, balances o lógica de créditos visibles. Estas prohibiciones son reglas de bloqueo permanente.
+
 ## Proceso formal de decisión de cambios
 
 El proceso formal de decisión requiere documentación del cambio propuesto, análisis de impacto sobre arquitectura canónica, evaluación de riesgo sobre integridad transaccional y justificación de necesidad operativa. El proceso valida que el cambio respete principios innegociables y mantenga separación estricta de capas.

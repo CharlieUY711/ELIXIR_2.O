@@ -8,7 +8,7 @@ Elixir Platform opera como infraestructura transaccional que habilita interaccio
 
 ## Separación estricta de capas
 
-Elixir Platform se estructura en capas con responsabilidades definidas y separación estricta. El Catálogo es la capa visual de conversión que presenta modelos y facilita el inicio de transacciones. El Chat es la capa de orquestación que consulta Elixir Core y coordina derivación a canales externos. El WhatsApp Edge es la puerta de salida controlada que valida acceso temporal. Elixir Core es el núcleo de control de valor que autoriza transacciones y gestiona saldo. Nectar es la unidad de valor interna que opera dentro de Elixir Core.
+Elixir Platform se estructura en capas con responsabilidades definidas y separación estricta. El Catálogo es la capa visual de conversión que presenta modelos y facilita el inicio de transacciones. El Chat es la capa de orquestación que consulta Elixir Core y coordina derivación a canales externos. El WhatsApp Edge es la puerta de salida controlada que valida acceso temporal. Elixir Core es el núcleo de control de valor que autoriza transacciones y gestiona saldo. Nectar es la unidad económica interna que opera exclusivamente dentro de Elixir Core para toma de decisiones, sin ser visible ni transaccionable por el usuario.
 
 Cada capa mantiene responsabilidades exclusivas y no asume funciones de otras capas. El Catálogo no procesa lógica de negocio. El Chat no gestiona saldo. El Edge no almacena conversaciones. Elixir Core no presenta interfaces de usuario. La separación estricta garantiza que cada componente sea reemplazable, auditable y compatible con evolución futura del sistema.
 
@@ -63,4 +63,8 @@ La documentación de gobernanza y resiliencia establece normas vigentes que rige
 - [Estrés y Abuso](ESTRES_Y_ABUSO.md): Define la respuesta canónica del sistema bajo condiciones adversas, el mapa de absorción por capas, las respuestas específicas por escenario y el checklist de resistencia.
 
 Estos documentos forman parte del contrato del sistema en producción y deben consultarse antes de cualquier modificación que afecte la arquitectura canónica de Elixir Platform.
+
+## Modelo Económico — Resumen Ejecutivo
+
+El usuario siempre paga en moneda externa (USD). Elixir Platform no vende ni expone unidades internas. Nectar es una unidad económica interna utilizada exclusivamente por Elixir Core. Nectar no es visible, no es comprable, no es transaccionable por el usuario. Elixir utiliza Nectar para regular costos, riesgo, escasez y liquidaciones. La rentabilidad del sistema se logra reduciendo progresivamente la salida de USD mediante servicios de costo interno y compensación con Nectar. El usuario nunca interactúa ni razona en términos de Nectar.
 

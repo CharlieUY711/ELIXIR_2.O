@@ -6,7 +6,7 @@ Elixir es un núcleo de control de valor. No es app, marketplace ni canal de com
 Registra, valida, autoriza y audita eventos de valor. No gestiona servicios.
 
 ### Nectar (diferido)
-Nectar existe como unidad de valor interna, pero NO se expone ni opera en esta fase.
+Nectar es una unidad económica interna, no una moneda visible. Nectar no representa un medio de pago para el usuario. Nectar no tiene precio público ni equivalencia visible. Nectar no puede ser comprada, vendida ni intercambiada externamente. Nectar existe únicamente para la toma de decisiones del Core. Nectar existe como unidad económica interna, pero NO se expone ni opera en esta fase.
 
 ### Modelo de saldo
 Ledger inmutable por eventos. El saldo es la suma de eventos.

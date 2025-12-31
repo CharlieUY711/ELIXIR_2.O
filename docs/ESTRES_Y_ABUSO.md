@@ -42,7 +42,7 @@ Bajo estrés por exploración, el sistema responde con mensajes de error genéri
 
 ## Qué NO hacer nunca bajo estrés
 
-El sistema nunca almacena contenido de conversación para manejar estrés. El sistema nunca toma decisiones económicas sin consultar Elixir Core para acelerar procesamiento. El sistema nunca mezcla responsabilidades entre capas para distribuir carga. El sistema nunca crea handoffs permanentes para evitar validación.
+El sistema nunca almacena contenido de conversación para manejar estrés. El sistema nunca toma decisiones económicas sin consultar Elixir Core para acelerar procesamiento. El sistema nunca mezcla responsabilidades entre capas para distribuir carga. El sistema nunca crea handoffs permanentes para evitar validación. Bajo estrés económico o de carga, Elixir ajusta reglas internas y consumo de Nectar; nunca expone monedas, precios ni comisiones al usuario.
 
 El sistema nunca degrada principios arquitectónicos para mantener disponibilidad. El sistema nunca expone información sensible en respuestas de error para facilitar debugging. El sistema nunca omite validación de autorización para mejorar rendimiento. El sistema nunca compromete capacidad de auditoría para manejar volumen.
 
