@@ -23,6 +23,7 @@ import { RulePipeline } from '../rules/Pipeline';
 import { RuleContext } from '../rules/RuleContext';
 import { ExplicitAllowStage } from '../rules/stages/ExplicitAllowStage';
 import { NectarCollector } from '../nectar/NectarCollector';
+import { StressDetector } from '../stress/StressDetector';
 import { randomBytes } from 'crypto';
 
 export class AuthorizeService {
@@ -34,6 +35,7 @@ export class AuthorizeService {
   private pipeline: RulePipeline;
   private explicitAllowStage: ExplicitAllowStage;
   private nectarCollector: NectarCollector;
+  private stressDetector: StressDetector;
 
   constructor(pipeline?: RulePipeline, explicitAllowStage?: ExplicitAllowStage) {
     this.clock = new Clock();
@@ -42,6 +44,7 @@ export class AuthorizeService {
     this.metrics = new Metrics();
     this.logger = new Logger();
     this.nectarCollector = new NectarCollector(this.clock);
+    this.stressDetector = new StressDetector(this.clock);
     // Pipeline con lista vacía por defecto (retorna DENY)
     // Permite inyección opcional para testing
     this.pipeline = pipeline ?? new RulePipeline([]);
@@ -79,6 +82,28 @@ export class AuthorizeService {
         } catch (error) {
           // Si NectarCollector falla, continuar sin Nectar (fail-closed)
           // NO afecta el flujo de decisión
+        }
+
+        // Stress: detectar modo de estrés (después de Nectar)
+        let stressContext;
+        try {
+          stressContext = this.stressDetector.detect(nectarContext);
+          // Registrar métrica agregada (NO exponer valor por request)
+          this.metrics.incrementStressMode(stressContext.mode);
+        } catch (error) {
+          // Si StressDetector falla, modo PRESSURE (fail-closed)
+          // Bajo presión, el sistema deniega
+          stressContext = {
+            mode: 'PRESSURE',
+            detectedAt: this.clock.now()
+          };
+          this.metrics.incrementStressMode('PRESSURE');
+        }
+
+        // Si StressMode === 'PRESSURE', retornar DENY inmediatamente
+        // NO se ejecuta ExplicitAllowGate bajo presión
+        if (stressContext.mode === 'PRESSURE') {
+          return Decision.DENY;
         }
 
         // 4. Validar deadline

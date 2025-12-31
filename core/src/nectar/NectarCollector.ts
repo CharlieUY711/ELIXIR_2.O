@@ -39,6 +39,10 @@ export class NectarCollector {
       return 'LOW';
     }
     
+    if (request.action === 'HIGH_TEST') {
+      return 'HIGH';
+    }
+    
     // Cualquier otro caso → MEDIUM
     return 'MEDIUM';
   }

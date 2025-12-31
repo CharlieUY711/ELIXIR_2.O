@@ -11,6 +11,7 @@
  */
 
 import { NectarSignal } from '../nectar/NectarSignal';
+import { StressMode } from '../stress/StressMode';
 
 export class Metrics {
   private authorizeTotal: number = 0;
@@ -22,6 +23,10 @@ export class Metrics {
     ['LOW', 0],
     ['MEDIUM', 0],
     ['HIGH', 0]
+  ]);
+  private stressModeCount: Map<StressMode, number> = new Map([
+    ['NORMAL', 0],
+    ['PRESSURE', 0]
   ]);
 
   incrementAuthorizeTotal(): void {
@@ -49,6 +54,11 @@ export class Metrics {
     this.nectarSignalCount.set(signal, current + 1);
   }
 
+  incrementStressMode(mode: StressMode): void {
+    const current = this.stressModeCount.get(mode) || 0;
+    this.stressModeCount.set(mode, current + 1);
+  }
+
   getStats(): {
     authorize_total: number;
     authorize_allow_total: number;
@@ -56,6 +66,7 @@ export class Metrics {
     authorize_error_total: number;
     authorize_timeout_total: number;
     nectar_signal_count: { [key in NectarSignal]: number };
+    stress_mode_count: { [key in StressMode]: number };
   } {
     return {
       authorize_total: this.authorizeTotal,
@@ -67,6 +78,10 @@ export class Metrics {
         LOW: this.nectarSignalCount.get('LOW') || 0,
         MEDIUM: this.nectarSignalCount.get('MEDIUM') || 0,
         HIGH: this.nectarSignalCount.get('HIGH') || 0
+      },
+      stress_mode_count: {
+        NORMAL: this.stressModeCount.get('NORMAL') || 0,
+        PRESSURE: this.stressModeCount.get('PRESSURE') || 0
       }
     };
   }
