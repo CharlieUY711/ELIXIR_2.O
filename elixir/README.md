@@ -11,6 +11,19 @@ El módulo **Elixir** es la infraestructura financiera interna que gestiona sald
 - APIs financieras para otros módulos
 - **GESTIÓN DE SALDO, NO DE SERVICIOS**
 
+## Modelo de Datos
+
+Elixir Core implementa el modelo de datos que es la **fuente única de verdad financiera** del sistema. El modelo define las estructuras fundamentales para la gestión de saldo:
+
+- **Wallet**: Billeteras con saldo (USER, MODEL, SYSTEM)
+- **LedgerEntry**: Registro inmutable (append-only) de movimientos financieros
+- **PaymentLink**: Enlaces de pago para modelos
+- **Reservation**: Reservas temporales de saldo entre wallets
+
+Para documentación completa del modelo de datos, ver: [`/docs/elixir-data-model.md`](../docs/elixir-data-model.md)
+
+**El modelo de datos es la fuente única de verdad financiera** - todas las operaciones financieras deben reflejarse en las entidades del modelo.
+
 ## Qué NO Hace
 
 - No gestiona servicios (solo gestiona saldo)
