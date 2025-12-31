@@ -1,0 +1,14 @@
+{
+  "name": "ChatToWhatsAppHandoff",
+  "version": "0.1",
+  "request": {
+    "session_id": "string",
+    "user_ref": "string",
+    "model_ref": "string"
+  },
+  "response": {
+    "handoff_url": "string",
+    "expires_at": "string"
+  }
+}
+

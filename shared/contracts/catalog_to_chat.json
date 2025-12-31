@@ -1,0 +1,13 @@
+{
+  "name": "CatalogToChatInit",
+  "version": "0.1",
+  "request": {
+    "model_id": "string",
+    "source": "catalog"
+  },
+  "response": {
+    "session_id": "string",
+    "status": "INIT"
+  }
+}
+
