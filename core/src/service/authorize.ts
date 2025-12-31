@@ -21,6 +21,7 @@ import { Metrics } from '../obs/metrics';
 import { Logger, LogEntry } from '../obs/logger';
 import { RulePipeline } from '../rules/Pipeline';
 import { RuleContext } from '../rules/RuleContext';
+import { ExplicitAllowStage } from '../rules/stages/ExplicitAllowStage';
 import { randomBytes } from 'crypto';
 
 export class AuthorizeService {
@@ -30,15 +31,20 @@ export class AuthorizeService {
   private metrics: Metrics;
   private logger: Logger;
   private pipeline: RulePipeline;
+  private explicitAllowStage: ExplicitAllowStage;
 
-  constructor() {
+  constructor(pipeline?: RulePipeline, explicitAllowStage?: ExplicitAllowStage) {
     this.clock = new Clock();
     this.validator = new Validator();
     this.deadline = new Deadline(this.clock);
     this.metrics = new Metrics();
     this.logger = new Logger();
     // Pipeline con lista vacía por defecto (retorna DENY)
-    this.pipeline = new RulePipeline([]);
+    // Permite inyección opcional para testing
+    this.pipeline = pipeline ?? new RulePipeline([]);
+    // ExplicitAllowStage: única fuente de ALLOW
+    // Permite inyección opcional para testing
+    this.explicitAllowStage = explicitAllowStage ?? new ExplicitAllowStage();
   }
 
   authorize(request: unknown): Decision {
@@ -79,11 +85,20 @@ export class AuthorizeService {
         const pipelineResult = this.pipeline.run(ruleContext);
         
         // Pipeline puede devolver PASS o DENY
-        // PASS NO autoriza: convertir a DENY (default deny)
+        // Si pipeline devuelve DENY → DENY (no se puede sobreescribir)
         if (pipelineResult.type === 'DENY') {
           return Decision.DENY;
         }
-        // Si es PASS, igual retornar DENY (default deny)
+        
+        // 6. Ejecutar ExplicitAllowStage (solo si pipeline no negó)
+        const explicitAllowResult = this.explicitAllowStage.execute(ruleContext);
+        
+        // Si ExplicitAllowStage devuelve ALLOW → ALLOW
+        if (explicitAllowResult.type === 'ALLOW') {
+          return Decision.ALLOW;
+        }
+        
+        // En cualquier otro caso → DENY (default deny)
         return Decision.DENY;
       },
       () => {

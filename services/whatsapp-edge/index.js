@@ -6,7 +6,7 @@ const PORT = 3002;
 const handoffs = new Map();
 
 // TTL: 5 minutos en milisegundos
-const TTL_MS = 5 * 60 * 1000;
+const TTL_MS = 5 * 1000;
 
 // Endpoint GET /handoff/resolve
 app.get('/handoff/resolve', (req, res) => {

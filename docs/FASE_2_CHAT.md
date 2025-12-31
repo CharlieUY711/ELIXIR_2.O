@@ -1,60 +1,84 @@
-# FASE 2 — CHAT
+# FASE 2: Chat
 
-## Rol del Chat como orquestador
+## 1. Propósito del Chat
 
-El Chat es la capa de orquestación transaccional de Elixir Platform. Su función es recibir la intención del usuario desde el Catálogo, validar la capacidad transaccional mediante consulta a Elixir Core, y coordinar la derivación controlada hacia WhatsApp cuando las condiciones se cumplen.
+El Chat es la capa de orquestación del sistema. Su función es decidir si un usuario puede ser derivado al Edge o si debe ser cortado del flujo.
 
-El Chat no es un producto de comunicación social. No almacena conversaciones, no gestiona relaciones entre usuarios y no proporciona funcionalidades de mensajería. El Chat es un middleware transaccional que opera con identidad implícita y delega la comunicación real a sistemas externos.
+## 2. Qué es el Chat
 
-## Diferencia entre Chat y WhatsApp
+El Chat es un pasillo controlado entre el Catálogo y el Edge. Es un sistema de decisión mínima que mantiene conversaciones cortas y funcionales.
 
-El Chat es el sistema interno de orquestación que valida, autoriza y coordina transacciones. WhatsApp es el canal externo de comunicación donde ocurre la interacción real entre usuario y modelo. El Chat habilita el acceso a WhatsApp pero no participa en la conversación.
+## 3. Qué NO es el Chat
 
-El Chat opera antes de la derivación a WhatsApp. Una vez que el handoff se completa, el Chat no interviene en la comunicación. WhatsApp es la salida definitiva donde el usuario y el modelo interactúan directamente, fuera del control de Elixir Platform.
+El Chat no es una red social. No es un perfil de usuario. No es un espacio de negociación. No mantiene historial de conversaciones. No presenta una interfaz rica.
 
-## Principio de decisión (derivar vs cortar)
+## 4. Objetivo único
 
-El Chat toma decisiones binarias basadas en la autorización de Elixir Core. Si Elixir Core autoriza la transacción, el Chat deriva al usuario hacia WhatsApp mediante handoff controlado. Si Elixir Core rechaza la transacción, el Chat corta el flujo y comunica el resultado sin derivación.
+El objetivo único del Chat es determinar si el usuario puede ser derivado al Edge.
 
-La decisión de derivar requiere autorización explícita de Elixir Core. La decisión de cortar ocurre cuando falta autorización, cuando los recursos son insuficientes o cuando las condiciones transaccionales no se cumplen. El Chat no toma decisiones económicas ni valida reglas de negocio por sí mismo.
+## 5. Principios rectores
 
-## Estructura conceptual del primer mensaje
+El Chat opera bajo los siguientes principios:
 
-El primer mensaje en WhatsApp es responsabilidad del modelo, no del Chat. El Chat no genera contenido, no redacta mensajes y no personaliza comunicaciones. El handoff proporciona contexto necesario para que el modelo inicie la conversación, pero el Chat no interviene en la creación del mensaje.
+- Mensajes escasos.
+- Decisiones rápidas.
+- Sin promesas.
+- Sin precios.
+- Sin monedas.
+- Sin estados visibles.
+- Sin explicaciones del sistema.
 
-El Chat transmite referencias abstractas que permiten al modelo identificar la sesión y el usuario. Estas referencias son suficientes para que el modelo recupere contexto necesario y genere su primer mensaje de forma independiente.
+## 6. Acciones permitidas
 
-## Qué inputs puede usar y cuáles no
+El Chat puede realizar las siguientes acciones:
 
-El Chat puede usar referencias abstractas de usuario y modelo proporcionadas por el Catálogo. Puede usar identificadores de sesión generados internamente. Puede usar respuestas de autorización de Elixir Core. Puede usar estados de validación y timestamps de operación.
+- Enviar un mensaje inicial neutro.
+- Mantener entre 1 y 3 intercambios máximos.
+- Realizar validación mínima de intención.
+- Tomar decisión: derivar o cortar.
 
-El Chat no puede usar mensajes de usuario. No puede usar contenido de conversaciones. No puede usar datos personales más allá de referencias abstractas. No puede usar información de saldo directamente sin consultar Elixir Core. No puede usar preferencias de usuario ni historial de interacciones.
+## 7. Acciones prohibidas
 
-## Qué significa cortar correctamente
+El Chat está prohibido de realizar las siguientes acciones:
 
-Cortar correctamente significa terminar el flujo transaccional cuando las condiciones no se cumplen, comunicar el resultado de forma clara al usuario, liberar recursos asociados a la sesión y registrar el evento para auditoría sin almacenar contenido de conversación.
+- Mostrar disponibilidad.
+- Mostrar precios o saldos.
+- Mencionar Nectar.
+- Explicar reglas del sistema.
+- Decir "te estamos conectando".
+- Mantener conversación indefinida.
 
-Cortar correctamente implica no generar handoff cuando la autorización falla, no crear tokens de acceso cuando las condiciones no se cumplen y no dejar sesiones en estado intermedio. El corte debe ser definitivo y el usuario debe recibir información suficiente para entender el resultado.
+## 8. Flujo conceptual
 
-## Qué significa derivar correctamente
+El flujo del Chat se compone de:
 
-Derivar correctamente significa generar un handoff controlado cuando Elixir Core autoriza la transacción, crear un token de acceso con TTL limitado y uso único, proporcionar la referencia de sesión necesaria para el modelo y transferir el control al sistema de borde sin retener capacidad de intervención posterior.
+- Entrada desde el Catálogo.
+- Inicio con mensaje neutro.
+- Núcleo de preguntas breves.
+- Decisión final.
 
-Derivar correctamente implica no exponer información sensible en el handoff, no crear tokens reutilizables, no mantener sesiones activas después del handoff y no intervenir en la comunicación que ocurre en WhatsApp. La derivación es unidireccional y definitiva.
+## 9. Cortes
 
-## Estados conceptuales del Chat
+El silencio es una respuesta válida. El Chat puede cortar por múltiples motivos sin explicación.
 
-El Chat opera mediante una máquina de estados que representa el ciclo de vida de una sesión transaccional. Los estados son: inicialización, validación, autorización, preparación de handoff, handoff completado y cierre.
+## 10. Relación con otras capas
 
-El estado de inicialización ocurre cuando el Chat recibe la solicitud desde el Catálogo. El estado de validación verifica que los parámetros sean correctos. El estado de autorización consulta Elixir Core y espera respuesta. El estado de preparación de handoff genera el token de acceso. El estado de handoff completado registra la derivación exitosa. El estado de cierre finaliza la sesión y libera recursos.
+El Chat mantiene las siguientes relaciones:
 
-## Criterios de cierre de la fase
+- Catálogo: no vuelve.
+- Core: consulta reglas.
+- Edge: solicita handoff.
+- WhatsApp: no se conoce.
 
-La Fase 2 del Chat se considera completa cuando el sistema recibe solicitudes desde el Catálogo, consulta Elixir Core para autorización, toma decisiones binarias de derivar o cortar, genera handoffs controlados cuando corresponde, maneja errores de forma adecuada y mantiene separación estricta con las capas de comunicación externa.
+## 11. Métricas internas permitidas
 
-La fase se cierra cuando el Chat opera como orquestador transaccional puro que no almacena conversaciones, no gestiona saldo y no interviene en la comunicación que ocurre después del handoff.
+El Chat puede medir internamente:
 
-## Frase canónica de la fase
+- Ratio de derivación.
+- Tiempo hasta decisión.
+- Ratio de corte.
+- Errores de handoff.
 
-El Chat orquesta transacciones consultando Elixir Core y derivando a WhatsApp cuando autoriza, sin almacenar conversaciones ni gestionar comunicación directa.
+## 12. Frase canónica de cierre
 
+El Chat no convence. El Chat no explica. El Chat decide y desaparece.

@@ -1,4 +1,4 @@
-# Elixir Core - PR 2: rule-evaluation-pipeline (deny-only)
+# Elixir Core - PR 3: explicit allow gate (minimal)
 
 ## Descripción
 
@@ -24,7 +24,9 @@ Estructura mínima del Elixir Core con garantía de fail-closed absoluto.
       Pipeline.ts       # Pipeline interno deny-only
       RuleStage.ts      # Interfaz para etapas
       RuleContext.ts   # Contexto de evaluación
-      RuleResult.ts    # Resultado PASS | DENY
+      RuleResult.ts    # Resultado PASS | DENY | ALLOW
+      /stages
+        ExplicitAllowStage.ts  # Única regla explícita de ALLOW
     /obs
       metrics.ts        # Métricas internas
       logger.ts         # Logging seguro
@@ -36,6 +38,10 @@ Estructura mínima del Elixir Core con garantía de fail-closed absoluto.
     pipeline_short_circuit_deny.test.ts
     pipeline_exception_fail_closed.test.ts
     pipeline_empty_defaults_to_deny.test.ts
+    explicit_allow_happy_path.test.ts
+    explicit_allow_not_triggered_defaults_to_deny.test.ts
+    explicit_allow_never_overrides_deny.test.ts
+    explicit_allow_fail_closed.test.ts
   /docs
     RUNBOOK_CORE.md     # Documentación operativa
   README.md
@@ -61,6 +67,20 @@ const decision = authorize(request);
 
 Existe un pipeline interno de evaluación de reglas que permite denegaciones tempranas. Su función es permitir que las reglas nieguen solicitudes cuando corresponda, pero **no autoriza**. El Core permanece en estado default-deny: incluso si el pipeline no encuentra razones para denegar (retorna PASS), el Core igual retorna DENY.
 
+## Explicit Allow Gate
+
+Existe una única regla explícita de ALLOW implementada en `ExplicitAllowStage`. Esta regla es:
+- **Técnica**: Condición simple y determinista (`request.action === 'ALLOW_TEST'`)
+- **Mínima**: Implementación aislada y reversible
+- **Sin exposición**: No expone razones, mensajes ni metadata
+- **Fail-closed**: Cualquier error en la evaluación → DENY
+
+El sistema mantiene **deny-by-default**: ALLOW solo puede ocurrir si:
+1. El pipeline no niega (retorna PASS)
+2. ExplicitAllowStage emite ALLOW explícitamente
+
+**IMPORTANTE**: DENY del pipeline tiene prioridad absoluta sobre ALLOW explícito. Si el pipeline niega, el resultado es siempre DENY, independientemente de la condición de ExplicitAllowStage.
+
 ## Tests
 
 Ejecutar tests obligatorios:
@@ -71,5 +91,5 @@ Ejecutar tests obligatorios:
 
 ## Estado
 
-PR 2 - Rule evaluation pipeline (deny-only) implementado. Pipeline interno permite denegaciones tempranas pero no autoriza. Default deny mantenido.
+PR 3 - Explicit allow gate (minimal) implementado. Se introduce por primera vez la posibilidad de Decision.ALLOW de forma explícita, mínima y reversible. El sistema mantiene deny-by-default y fail-closed absoluto.
 
