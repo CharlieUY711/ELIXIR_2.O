@@ -1,0 +1,19 @@
+{
+  "name": "decision-cli",
+  "version": "0.1.0",
+  "description": "Decision CLI - Herramienta de evaluación de decisiones",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Tests pendientes de implementación\""
+  },
+  "keywords": ["cli", "decision", "evaluation", "testing"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {}
+}
+
