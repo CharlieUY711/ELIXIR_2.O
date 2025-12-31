@@ -22,6 +22,7 @@ import { Logger, LogEntry } from '../obs/logger';
 import { RulePipeline } from '../rules/Pipeline';
 import { RuleContext } from '../rules/RuleContext';
 import { ExplicitAllowStage } from '../rules/stages/ExplicitAllowStage';
+import { NectarCollector } from '../nectar/NectarCollector';
 import { randomBytes } from 'crypto';
 
 export class AuthorizeService {
@@ -32,6 +33,7 @@ export class AuthorizeService {
   private logger: Logger;
   private pipeline: RulePipeline;
   private explicitAllowStage: ExplicitAllowStage;
+  private nectarCollector: NectarCollector;
 
   constructor(pipeline?: RulePipeline, explicitAllowStage?: ExplicitAllowStage) {
     this.clock = new Clock();
@@ -39,6 +41,7 @@ export class AuthorizeService {
     this.deadline = new Deadline(this.clock);
     this.metrics = new Metrics();
     this.logger = new Logger();
+    this.nectarCollector = new NectarCollector(this.clock);
     // Pipeline con lista vacía por defecto (retorna DENY)
     // Permite inyección opcional para testing
     this.pipeline = pipeline ?? new RulePipeline([]);
@@ -67,6 +70,17 @@ export class AuthorizeService {
           throw error; // Será capturado por FailClosedGuard
         }
 
+        // Nectar: calcular señal interna (NO afecta decisiones)
+        let nectarContext;
+        try {
+          nectarContext = this.nectarCollector.collect(validatedRequest);
+          // Registrar métrica agregada (NO exponer valor por request)
+          this.metrics.incrementNectarSignal(nectarContext.signal);
+        } catch (error) {
+          // Si NectarCollector falla, continuar sin Nectar (fail-closed)
+          // NO afecta el flujo de decisión
+        }
+
         // 4. Validar deadline
         try {
           this.deadline.validate(validatedRequest);
@@ -80,7 +94,8 @@ export class AuthorizeService {
           request: validatedRequest,
           clock: this.clock,
           deadline: this.deadline,
-          trace_id: traceId
+          trace_id: traceId,
+          nectarContext: nectarContext // Transporte interno, NO usado para decidir
         };
         const pipelineResult = this.pipeline.run(ruleContext);
         

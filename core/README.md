@@ -1,4 +1,4 @@
-# Elixir Core - PR 3: explicit allow gate (minimal)
+# Elixir Core - PR 4: nectar internal signal (non-decisional)
 
 ## Descripción
 
@@ -30,6 +30,10 @@ Estructura mínima del Elixir Core con garantía de fail-closed absoluto.
     /obs
       metrics.ts        # Métricas internas
       logger.ts         # Logging seguro
+    /nectar
+      NectarSignal.ts   # Tipo de señal interna
+      NectarContext.ts  # Contexto interno de señal
+      NectarCollector.ts # Colector de señal interna
   /tests
     authorize_fail_closed_exception.test.ts
     authorize_fail_closed_timeout.test.ts
@@ -42,6 +46,10 @@ Estructura mínima del Elixir Core con garantía de fail-closed absoluto.
     explicit_allow_not_triggered_defaults_to_deny.test.ts
     explicit_allow_never_overrides_deny.test.ts
     explicit_allow_fail_closed.test.ts
+    nectar_signal_is_computed.test.ts
+    nectar_does_not_affect_decision.test.ts
+    nectar_fail_closed.test.ts
+    nectar_not_exposed.test.ts
   /docs
     RUNBOOK_CORE.md     # Documentación operativa
   README.md
@@ -81,6 +89,18 @@ El sistema mantiene **deny-by-default**: ALLOW solo puede ocurrir si:
 
 **IMPORTANTE**: DENY del pipeline tiene prioridad absoluta sobre ALLOW explícito. Si el pipeline niega, el resultado es siempre DENY, independientemente de la condición de ExplicitAllowStage.
 
+## Nectar (internal signal)
+
+Nectar es una señal interna no decisional del Elixir Core:
+- **No decide**: Nectar no influye en las decisiones de autorización
+- **No autoriza**: Nectar no puede cambiar un DENY a ALLOW
+- **No deniega**: Nectar no puede cambiar un ALLOW a DENY
+- **No se expone**: Nectar no aparece en logs, responses ni métricas externas por request
+- **Solo interno**: Nectar se transporta únicamente dentro del Core
+- **Observabilidad**: Se usa para métricas agregadas y preparación futura
+
+Nectar se calcula de forma determinista y simple basándose en propiedades técnicas del request (por ejemplo, el tipo de acción). El cálculo ocurre al inicio del flujo de autorización, pero no afecta el resultado final.
+
 ## Tests
 
 Ejecutar tests obligatorios:
@@ -91,5 +111,5 @@ Ejecutar tests obligatorios:
 
 ## Estado
 
-PR 3 - Explicit allow gate (minimal) implementado. Se introduce por primera vez la posibilidad de Decision.ALLOW de forma explícita, mínima y reversible. El sistema mantiene deny-by-default y fail-closed absoluto.
+PR 4 - Nectar internal signal (non-decisional) implementado. Se introduce por primera vez Nectar como señal interna no decisional. Nectar se calcula y transporta internamente, pero no afecta las decisiones de autorización. El sistema mantiene deny-by-default y fail-closed absoluto.
 
