@@ -1,54 +1,63 @@
-# FASE 3 — WHATSAPP EDGE
+# FASE 3: WhatsApp Edge
 
-## Definición del Edge
+## 1. Propósito del WhatsApp Edge
 
-El WhatsApp Edge es la puerta de salida controlada de Elixir Platform hacia WhatsApp. Su función es validar tokens de handoff, verificar condiciones de acceso y habilitar la conexión final del usuario con el modelo en el canal externo.
+El WhatsApp Edge es el borde de salida controlado del sistema.
 
-El Edge no es un sistema de mensajería interna. No almacena conversaciones, no procesa mensajes y no intermedia comunicación. El Edge es un punto de control que valida acceso temporal y delega la comunicación completa a WhatsApp.
+## 2. Qué es el Edge
 
-## Qué es el handoff
+El Edge es una puerta de salida. No es una capa de conversación. No es un servicio de mensajería propio.
 
-El handoff es el mecanismo de transferencia controlada que permite al usuario acceder a WhatsApp para interactuar con un modelo específico. El handoff consiste en un token temporal que contiene referencias de sesión, identificación de usuario y modelo, y condiciones de validez.
+## 3. Qué NO es el Edge
 
-El handoff no es un enlace permanente. No es reutilizable. No contiene información de conversación. El handoff es un permiso temporal y revocable que habilita una única conexión bajo condiciones estrictas de tiempo y uso.
+El Edge no es WhatsApp. No es una UI. No es un historial. No es un canal bidireccional controlado.
 
-## Principio de uso único
+## 4. El handoff
 
-El handoff opera bajo el principio de uso único. Cada token de handoff puede ser utilizado una sola vez. Una vez que el handoff se resuelve exitosamente, el token se marca como consumido y no puede ser utilizado nuevamente.
+El handoff es un traspaso controlado de contexto. Ocurre una sola vez.
 
-El principio de uso único previene acceso no autorizado mediante reutilización de tokens, limita la exposición de referencias de sesión y garantiza que cada conexión a WhatsApp corresponda a una autorización específica y única de Elixir Core.
+## 5. Uso único
 
-## Concepto de TTL
+El enlace de handoff no es reutilizable. Los reintentos deben volver al Catálogo o Chat.
 
-El TTL, tiempo de vida, define la validez temporal del handoff. Cada token de handoff tiene una fecha de expiración que limita el período durante el cual el acceso puede ser ejercido. Una vez que el TTL expira, el handoff se invalida automáticamente.
+## 6. TTL (tiempo de vida)
 
-El TTL es corto por diseño. Los handoffs expiran rápidamente para minimizar la ventana de exposición, prevenir uso de tokens obsoletos y garantizar que cada conexión corresponda a condiciones transaccionales actuales. El TTL no es extensible ni renovable.
+El handoff tiene una ventana temporal limitada. Vencido el TTL, el acceso se invalida.
 
-## Qué ocurre antes y después del handoff
+## 7. Qué ocurre antes del handoff
 
-Antes del handoff, el Edge valida la existencia del token, verifica que el estado sea válido, confirma que el TTL no haya expirado y asegura que el token no haya sido utilizado previamente. Solo cuando todas las condiciones se cumplen, el Edge permite la resolución del handoff.
+Antes del handoff ocurre:
 
-Después del handoff, el usuario accede a WhatsApp directamente. El Edge no interviene en la comunicación posterior. El modelo recibe la referencia de sesión necesaria para identificar al usuario y generar su primer mensaje. El Edge registra el evento de resolución para auditoría pero no almacena contenido de conversación.
+- Decisión tomada por el Chat.
+- Autorización del Core.
+- Generación del enlace.
 
-## Qué Elixir NO hace una vez en WhatsApp
+## 8. Qué ocurre después del handoff
 
-Una vez que el handoff se completa y el usuario accede a WhatsApp, Elixir Platform no lee mensajes, no procesa contenido de conversación, no intermedia comunicación, no almacena texto de mensajes, no gestiona multimedia y no interviene en la interacción entre usuario y modelo.
+Después del handoff:
 
-Elixir Platform no monitorea conversaciones en tiempo real, no analiza sentimiento, no genera respuestas automáticas y no modifica el flujo de comunicación. WhatsApp es la salida definitiva donde Elixir Platform cede control completo al canal externo y al modelo.
+- Elixir deja de controlar la conversación.
+- No hay tracking fino.
+- No hay intervención.
 
-## Riesgos de mal diseño del Edge
+## 9. Qué Elixir NO hace en WhatsApp
 
-Un Edge mal diseñado puede permitir acceso no autorizado mediante reutilización de tokens, puede exponer referencias de sesión mediante handoffs permanentes, puede crear vulnerabilidades de seguridad mediante validación insuficiente y puede generar confusión mediante mensajes de error poco claros.
+Elixir no realiza las siguientes acciones en WhatsApp:
 
-Un Edge mal diseñado puede intentar intermediar conversaciones, puede almacenar contenido que no debe retener, puede crear dependencias con WhatsApp que limiten la flexibilidad del sistema y puede violar el principio de separación de responsabilidades entre Elixir Platform y canales externos.
+- No modera.
+- No registra conversación.
+- No muestra estados.
+- No gestiona pagos visibles.
 
-## Señales de correcta implementación conceptual
+## 10. Riesgos y anti-patrones
 
-La implementación correcta del Edge se reconoce cuando los handoffs son de un solo uso, cuando el TTL se aplica estrictamente, cuando los tokens se invalidan después del uso, cuando los mensajes de error son claros y cuando el Edge no intenta procesar comunicación posterior al handoff.
+Los siguientes son riesgos y anti-patrones:
 
-La implementación correcta se reconoce cuando el Edge valida condiciones antes de permitir acceso, cuando registra eventos para auditoría sin almacenar contenido, cuando maneja estados de token de forma explícita y cuando mantiene separación estricta con la comunicación que ocurre en WhatsApp.
+- Enlaces permanentes.
+- Reutilización.
+- Bypass del Chat.
+- Exposición de números.
 
-## Frase canónica de la fase
+## 11. Frase canónica de cierre
 
-El Edge valida handoffs temporales de un solo uso y habilita acceso a WhatsApp, sin intermediar comunicación posterior ni almacenar contenido de conversación.
-
+El Edge conecta una vez y luego desaparece.
