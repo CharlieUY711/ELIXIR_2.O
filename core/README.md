@@ -1,4 +1,4 @@
-# Elixir Core - PR 5: stress & abuse modes (deny-by-pressure)
+# Elixir Core - PR 6: audit & observability hardening
 
 ## Descripción
 
@@ -30,6 +30,10 @@ Estructura mínima del Elixir Core con garantía de fail-closed absoluto.
     /obs
       metrics.ts        # Métricas internas
       logger.ts         # Logging seguro
+    /audit
+      AuditEvent.ts     # Tipo de eventos de auditoría
+      AuditContext.ts   # Contexto de auditoría
+      AuditRecorder.ts  # Grabador de eventos de auditoría
     /nectar
       NectarSignal.ts   # Tipo de señal interna
       NectarContext.ts  # Contexto interno de señal
@@ -59,6 +63,11 @@ Estructura mínima del Elixir Core con garantía de fail-closed absoluto.
     stress_mode_does_not_affect_pipeline_deny.test.ts
     stress_detector_deterministic.test.ts
     stress_fail_closed.test.ts
+    audit_event_emitted_on_request.test.ts
+    audit_event_emitted_on_allow.test.ts
+    audit_event_emitted_on_deny.test.ts
+    audit_event_emitted_on_stress.test.ts
+    audit_event_emitted_on_error.test.ts
   /docs
     RUNBOOK_CORE.md     # Documentación operativa
   README.md
@@ -174,6 +183,39 @@ Si StressMode es PRESSURE, el flujo se interrumpe y retorna DENY inmediatamente,
 
 Si la detección de estrés falla, el sistema asume PRESSURE y retorna DENY (fail-closed).
 
+## Audit & Observability
+
+### 1. Definición
+
+El Elixir Core emite eventos de auditoría internos para observabilidad y control. Estos eventos no explican decisiones ni exponen razones.
+
+### 2. Propósito
+
+Los eventos de auditoría sirven para control interno, métricas agregadas y cumplimiento. No se exponen a capas externas del sistema.
+
+### 3. Modelo
+
+Los eventos de auditoría son tipos cerrados: AUTH_REQUEST_RECEIVED, AUTH_DECISION_ALLOW, AUTH_DECISION_DENY, AUTH_STRESS_PRESSURE, AUTH_ERROR.
+
+Cada evento contiene traceId y timestamp. No contiene datos de request, PII ni decisiones detalladas.
+
+### 4. Integración
+
+Los eventos se registran en puntos clave del flujo de autorización:
+- Al inicio de authorize(): AUTH_REQUEST_RECEIVED
+- Antes de retornar ALLOW: AUTH_DECISION_ALLOW
+- Antes de retornar DENY: AUTH_DECISION_DENY
+- Cuando StressMode es PRESSURE: AUTH_STRESS_PRESSURE
+- Cuando ocurre excepción: AUTH_ERROR
+
+### 5. Observabilidad
+
+Los eventos se reflejan en métricas agregadas internas (audit_event_count). No se persisten. No se loguean con texto explicativo.
+
+### 6. Exposición
+
+Los eventos de auditoría no se exponen fuera del Core. No aparecen en logs con razones. No cruzan capas del sistema. Solo se reflejan en métricas agregadas internas.
+
 ## Tests
 
 Ejecutar tests obligatorios:
@@ -184,5 +226,5 @@ Ejecutar tests obligatorios:
 
 ## Estado
 
-PR 5 - Stress & abuse modes (deny-by-pressure) implementado. Se introducen modos internos de estrés que permiten al sistema denegar todas las solicitudes bajo presión técnica. El sistema mantiene deny-by-default y fail-closed absoluto. Bajo presión, ALLOW queda deshabilitado y el sistema retorna DENY sistemáticamente.
+PR 6 - Audit & observability hardening implementado. Se introducen eventos de auditoría internos que permiten observabilidad y control sin exponer razones ni decisiones detalladas. El sistema mantiene deny-by-default y fail-closed absoluto. Cada decisión es auditable internamente sin revelar por qué fue tomada.
 

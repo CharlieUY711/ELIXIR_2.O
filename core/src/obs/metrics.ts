@@ -8,10 +8,12 @@
  * - authorize_error_total
  * - authorize_timeout_total
  * - nectar_signal_count (agregada, por señal)
+ * - audit_event_count (agregada, por evento)
  */
 
 import { NectarSignal } from '../nectar/NectarSignal';
 import { StressMode } from '../stress/StressMode';
+import { AuditEvent } from '../audit/AuditEvent';
 
 export class Metrics {
   private authorizeTotal: number = 0;
@@ -27,6 +29,13 @@ export class Metrics {
   private stressModeCount: Map<StressMode, number> = new Map([
     ['NORMAL', 0],
     ['PRESSURE', 0]
+  ]);
+  private auditEventCount: Map<AuditEvent, number> = new Map([
+    ['AUTH_REQUEST_RECEIVED', 0],
+    ['AUTH_DECISION_ALLOW', 0],
+    ['AUTH_DECISION_DENY', 0],
+    ['AUTH_STRESS_PRESSURE', 0],
+    ['AUTH_ERROR', 0]
   ]);
 
   incrementAuthorizeTotal(): void {
@@ -59,6 +68,11 @@ export class Metrics {
     this.stressModeCount.set(mode, current + 1);
   }
 
+  incrementAuditEvent(event: AuditEvent): void {
+    const current = this.auditEventCount.get(event) || 0;
+    this.auditEventCount.set(event, current + 1);
+  }
+
   getStats(): {
     authorize_total: number;
     authorize_allow_total: number;
@@ -67,6 +81,7 @@ export class Metrics {
     authorize_timeout_total: number;
     nectar_signal_count: { [key in NectarSignal]: number };
     stress_mode_count: { [key in StressMode]: number };
+    audit_event_count: { [key in AuditEvent]: number };
   } {
     return {
       authorize_total: this.authorizeTotal,
@@ -82,6 +97,13 @@ export class Metrics {
       stress_mode_count: {
         NORMAL: this.stressModeCount.get('NORMAL') || 0,
         PRESSURE: this.stressModeCount.get('PRESSURE') || 0
+      },
+      audit_event_count: {
+        AUTH_REQUEST_RECEIVED: this.auditEventCount.get('AUTH_REQUEST_RECEIVED') || 0,
+        AUTH_DECISION_ALLOW: this.auditEventCount.get('AUTH_DECISION_ALLOW') || 0,
+        AUTH_DECISION_DENY: this.auditEventCount.get('AUTH_DECISION_DENY') || 0,
+        AUTH_STRESS_PRESSURE: this.auditEventCount.get('AUTH_STRESS_PRESSURE') || 0,
+        AUTH_ERROR: this.auditEventCount.get('AUTH_ERROR') || 0
       }
     };
   }

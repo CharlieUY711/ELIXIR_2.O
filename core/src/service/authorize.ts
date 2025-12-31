@@ -24,6 +24,7 @@ import { RuleContext } from '../rules/RuleContext';
 import { ExplicitAllowStage } from '../rules/stages/ExplicitAllowStage';
 import { NectarCollector } from '../nectar/NectarCollector';
 import { StressDetector } from '../stress/StressDetector';
+import { AuditRecorder } from '../audit/AuditRecorder';
 import { randomBytes } from 'crypto';
 
 export class AuthorizeService {
@@ -36,6 +37,7 @@ export class AuthorizeService {
   private explicitAllowStage: ExplicitAllowStage;
   private nectarCollector: NectarCollector;
   private stressDetector: StressDetector;
+  private auditRecorder: AuditRecorder;
 
   constructor(pipeline?: RulePipeline, explicitAllowStage?: ExplicitAllowStage) {
     this.clock = new Clock();
@@ -43,6 +45,7 @@ export class AuthorizeService {
     this.deadline = new Deadline(this.clock);
     this.metrics = new Metrics();
     this.logger = new Logger();
+    this.auditRecorder = new AuditRecorder(this.metrics);
     this.nectarCollector = new NectarCollector(this.clock);
     this.stressDetector = new StressDetector(this.clock);
     // Pipeline con lista vacía por defecto (retorna DENY)
@@ -60,6 +63,13 @@ export class AuthorizeService {
     // 1. Generar trace_id interno (ya generado arriba)
     // 2. Incrementar authorize_total
     this.metrics.incrementAuthorizeTotal();
+    
+    // Auditoría: AUTH_REQUEST_RECEIVED
+    this.auditRecorder.record({
+      event: 'AUTH_REQUEST_RECEIVED',
+      traceId: traceId,
+      timestamp: this.clock.now()
+    });
 
     // Ejecutar con fail-closed guard
     const result = FailClosedGuard.execute(
@@ -103,6 +113,18 @@ export class AuthorizeService {
         // Si StressMode === 'PRESSURE', retornar DENY inmediatamente
         // NO se ejecuta ExplicitAllowGate bajo presión
         if (stressContext.mode === 'PRESSURE') {
+          // Auditoría: AUTH_STRESS_PRESSURE
+          this.auditRecorder.record({
+            event: 'AUTH_STRESS_PRESSURE',
+            traceId: traceId,
+            timestamp: this.clock.now()
+          });
+          // Auditoría: AUTH_DECISION_DENY
+          this.auditRecorder.record({
+            event: 'AUTH_DECISION_DENY',
+            traceId: traceId,
+            timestamp: this.clock.now()
+          });
           return Decision.DENY;
         }
 
@@ -127,6 +149,12 @@ export class AuthorizeService {
         // Pipeline puede devolver PASS o DENY
         // Si pipeline devuelve DENY → DENY (no se puede sobreescribir)
         if (pipelineResult.type === 'DENY') {
+          // Auditoría: AUTH_DECISION_DENY
+          this.auditRecorder.record({
+            event: 'AUTH_DECISION_DENY',
+            traceId: traceId,
+            timestamp: this.clock.now()
+          });
           return Decision.DENY;
         }
         
@@ -135,14 +163,38 @@ export class AuthorizeService {
         
         // Si ExplicitAllowStage devuelve ALLOW → ALLOW
         if (explicitAllowResult.type === 'ALLOW') {
+          // Auditoría: AUTH_DECISION_ALLOW
+          this.auditRecorder.record({
+            event: 'AUTH_DECISION_ALLOW',
+            traceId: traceId,
+            timestamp: this.clock.now()
+          });
           return Decision.ALLOW;
         }
         
         // En cualquier otro caso → DENY (default deny)
+        // Auditoría: AUTH_DECISION_DENY
+        this.auditRecorder.record({
+          event: 'AUTH_DECISION_DENY',
+          traceId: traceId,
+          timestamp: this.clock.now()
+        });
         return Decision.DENY;
       },
       () => {
         // Error handler: siempre DENY
+        // Auditoría: AUTH_ERROR
+        this.auditRecorder.record({
+          event: 'AUTH_ERROR',
+          traceId: traceId,
+          timestamp: this.clock.now()
+        });
+        // Auditoría: AUTH_DECISION_DENY
+        this.auditRecorder.record({
+          event: 'AUTH_DECISION_DENY',
+          traceId: traceId,
+          timestamp: this.clock.now()
+        });
         this.metrics.incrementAuthorizeDeny();
         return Decision.DENY;
       }
