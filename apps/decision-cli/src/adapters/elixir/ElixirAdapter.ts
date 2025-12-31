@@ -16,7 +16,21 @@ import * as path from 'path';
 
 export class ElixirAdapter implements DecisionEngine {
   async authorize(input: unknown): Promise<DecisionResult> {
+    // Guardar referencias originales de stdout y console
+    const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+    const originalConsoleLog = console.log;
+    const originalConsoleError = console.error;
+    const originalConsoleWarn = console.warn;
+    const originalConsoleInfo = console.info;
+    
     try {
+      // Suprimir stdout y console temporalmente para evitar logs del Core
+      process.stdout.write = () => true;
+      console.log = () => {};
+      console.error = () => {};
+      console.warn = () => {};
+      console.info = () => {};
+      
       // Importar core compilado en tiempo de ejecución
       // Calcular ruta a la raíz del proyecto desde apps/decision-cli
       let projectRoot = process.cwd();
@@ -37,6 +51,13 @@ export class ElixirAdapter implements DecisionEngine {
       return decision === Decision.ALLOW ? 'ALLOW' : 'DENY';
     } catch (error) {
       return 'DENY';
+    } finally {
+      // Restaurar stdout y console originales siempre
+      process.stdout.write = originalStdoutWrite;
+      console.log = originalConsoleLog;
+      console.error = originalConsoleError;
+      console.warn = originalConsoleWarn;
+      console.info = originalConsoleInfo;
     }
   }
 }
