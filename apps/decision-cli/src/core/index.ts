@@ -1,3 +1,7 @@
-// Decision CLI - Core
-// TODO: Implementar lógica core del CLI
+/**
+ * Decision CLI - Core
+ */
 
+export { DecisionResult } from './DecisionResult';
+export { DecisionEngine } from './DecisionEngine';
+export { InputNormalizer, NormalizedInput } from './InputNormalizer';

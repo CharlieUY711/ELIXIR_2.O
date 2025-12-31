@@ -1,3 +1,6 @@
-// Elixir Adapter
-// TODO: Implementar adaptador para Elixir Core
+/**
+ * Elixir Adapter
+ */
 
+export { ElixirAdapter } from './ElixirAdapter';
+export { mapToAuthorizationRequest } from './mapper';

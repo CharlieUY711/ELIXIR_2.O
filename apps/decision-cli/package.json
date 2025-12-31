@@ -5,14 +5,16 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Tests pendientes de implementación\""
+    "test": "echo \"Tests pendientes de implementación\"",
+    "decision": "ts-node src/index.ts"
   },
   "keywords": ["cli", "decision", "evaluation", "testing"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
   },
   "dependencies": {}
 }
