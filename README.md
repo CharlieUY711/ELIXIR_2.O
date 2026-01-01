@@ -12,3 +12,10 @@ Plataforma modular de control de valor y orquestación transaccional.
 ## Arquitectura
 
 La arquitectura detallada está definida en [`/docs/architecture`](docs/architecture).
+
+## Estado Actual del Proyecto
+
+- **Registro y custodia**: Definidos
+- **Diseño UX**: Cerrado
+- **Implementación**: NO iniciada
+- **Próxima fase**: M1 / U1 (no ejecutada)
