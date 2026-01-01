@@ -77,38 +77,42 @@ const Catalog: React.FC = () => {
           {mockModels.map((model) => {
             const state = getModelState(model.id);
             return (
-              <div key={model.id} className="model-card">
-                <div className="model-image-container">
-                  <img 
-                    src={model.imageUrl} 
-                    alt={model.alias}
-                    className="model-image"
-                  />
-                </div>
-                <div className="model-info">
-                  <h2 className="model-alias">{model.alias}</h2>
-                  <p className="model-description">{model.description}</p>
-                </div>
-                <div className="model-actions">
-                  {state === 'loading' && (
-                    <div className="model-state-loading">
-                      <div className="spinner"></div>
-                      <span>Conectando...</span>
+              <div 
+                key={model.id} 
+                className="model-card"
+                style={{ backgroundImage: `url(${model.imageUrl})` }}
+              >
+                <div className="model-overlay"></div>
+                
+                <div className="model-content">
+                  <div className="model-badges">
+                    <span className="model-badge-name">{model.alias}</span>
+                    <span className="model-badge-status">Disponible</span>
+                  </div>
+                  
+                  <div className="model-actions-wrapper">
+                    <div className="model-actions">
+                      {state === 'loading' && (
+                        <div className="model-state-loading">
+                          <div className="spinner"></div>
+                          <span>Conectando...</span>
+                        </div>
+                      )}
+                      {state === 'error' && (
+                        <div className="model-state-error">
+                          <span>Error</span>
+                        </div>
+                      )}
+                      {state === 'idle' && (
+                        <button
+                          className="model-cta"
+                          onClick={() => handleChatClick(model.id)}
+                        >
+                          Chatear
+                        </button>
+                      )}
                     </div>
-                  )}
-                  {state === 'error' && (
-                    <div className="model-state-error">
-                      <span>Error de conexión</span>
-                    </div>
-                  )}
-                  {state === 'idle' && (
-                    <button
-                      className="model-cta"
-                      onClick={() => handleChatClick(model.id)}
-                    >
-                      Chatear
-                    </button>
-                  )}
+                  </div>
                 </div>
               </div>
             );
