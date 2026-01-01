@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Catalog.css';
-
-type ModelState = 'idle' | 'loading' | 'error';
 
 interface Model {
   id: string;
@@ -50,20 +48,6 @@ const mockModels: Model[] = [
 ];
 
 const Catalog: React.FC = () => {
-  const [modelStates, setModelStates] = useState<Record<string, ModelState>>({});
-
-  const handleChatClick = (modelId: string) => {
-    setModelStates((prev: Record<string, ModelState>) => ({ ...prev, [modelId]: 'loading' }));
-    
-    setTimeout(() => {
-      setModelStates((prev: Record<string, ModelState>) => ({ ...prev, [modelId]: 'idle' }));
-    }, 2000);
-  };
-
-  const getModelState = (modelId: string): ModelState => {
-    return modelStates[modelId] || 'idle';
-  };
-
   return (
     <div className="catalog">
       <header className="catalog-header">
@@ -75,7 +59,6 @@ const Catalog: React.FC = () => {
       <main className="catalog-main">
         <div className="catalog-grid">
           {mockModels.map((model) => {
-            const state = getModelState(model.id);
             return (
               <div 
                 key={model.id} 
@@ -88,30 +71,6 @@ const Catalog: React.FC = () => {
                   <div className="model-badges">
                     <span className="model-badge-name">{model.alias}</span>
                     <span className="model-badge-status">Disponible</span>
-                  </div>
-                  
-                  <div className="model-actions-wrapper">
-                    <div className="model-actions">
-                      {state === 'loading' && (
-                        <div className="model-state-loading">
-                          <div className="spinner"></div>
-                          <span>Conectando...</span>
-                        </div>
-                      )}
-                      {state === 'error' && (
-                        <div className="model-state-error">
-                          <span>Error</span>
-                        </div>
-                      )}
-                      {state === 'idle' && (
-                        <button
-                          className="model-cta"
-                          onClick={() => handleChatClick(model.id)}
-                        >
-                          Chatear
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>

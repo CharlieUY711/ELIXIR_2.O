@@ -34,30 +34,37 @@
 }
 
 .catalog-main {
-  padding: 48px 32px;
-  max-width: 1600px;
+  padding: 48px 0;
   margin: 0 auto;
+  width: 100%;
 }
 
 .catalog-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 48px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
   width: 100%;
+  max-width: 100%;
+  padding: 0;
+  align-items: center;
+  justify-items: center;
+  justify-content: center;
 }
 
 .model-card {
   position: relative;
-  width: 100%;
+  width: 60%;
   aspect-ratio: 3 / 4;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 24px;
+  border: 2px solid #ffffff;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
+  justify-self: center;
 }
 
 .model-card:hover {
@@ -98,35 +105,38 @@
   position: absolute;
   bottom: 32px;
   left: 32px;
+  right: 32px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
   z-index: 2;
 }
 
 .model-badge-name {
   display: inline-block;
-  padding: 8px 16px;
-  background-color: rgba(0, 0, 0, 0.75);
+  padding: 10px 18px;
+  background-color: #000000;
   color: #ffffff;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   border-radius: 8px;
-  backdrop-filter: blur(8px);
+  white-space: nowrap;
   letter-spacing: 0.5px;
 }
 
 .model-badge-status {
   display: inline-block;
-  padding: 6px 12px;
-  background-color: rgba(139, 92, 246, 0.9);
+  padding: 10px 18px;
+  background-color: #ff6b35;
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 2px solid #ff6b35;
+  border-radius: 8px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
 .model-actions-wrapper {
@@ -209,23 +219,25 @@
 
 @media (max-width: 1200px) {
   .catalog-grid {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 40px;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0;
+    gap: 24px;
   }
 }
 
 @media (max-width: 768px) {
   .catalog-main {
-    padding: 32px 20px;
+    padding: 32px 0;
   }
 
   .catalog-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 32px;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0;
+    gap: 24px;
   }
 
   .catalog-header {
-    padding: 20px 20px;
+    padding: 20px 40px;
   }
 
   .model-content {
@@ -235,6 +247,7 @@
   .model-badges {
     bottom: 24px;
     left: 24px;
+    right: 24px;
   }
 
   .model-actions-wrapper {
@@ -242,16 +255,22 @@
     right: 24px;
   }
 
-  .model-badge-name {
-    font-size: 18px;
-    padding: 6px 14px;
+  .model-badge-name,
+  .model-badge-status {
+    font-size: 14px;
+    padding: 8px 14px;
   }
 }
 
 @media (max-width: 480px) {
   .catalog-grid {
     grid-template-columns: 1fr;
+    padding: 0;
     gap: 24px;
+  }
+
+  .catalog-header {
+    padding: 20px 20px;
   }
 
   .model-card {
@@ -265,10 +284,17 @@
   .model-badges {
     bottom: 20px;
     left: 20px;
+    right: 20px;
   }
 
   .model-actions-wrapper {
     bottom: 20px;
     right: 20px;
+  }
+
+  .model-badge-name,
+  .model-badge-status {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
