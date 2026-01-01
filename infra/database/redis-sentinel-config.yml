@@ -1,0 +1,118 @@
+# Configuración de Redis Sentinel para Failover Automático
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia
+
+version: '3.8'
+
+services:
+  # Redis Master 1
+  redis-master-1:
+    image: redis:7-alpine
+    container_name: redis-master-1
+    command: >
+      redis-server
+      --port 6379
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-master-1-data:/data
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # Redis Replica 1
+  redis-replica-1:
+    image: redis:7-alpine
+    container_name: redis-replica-1
+    command: >
+      redis-server
+      --port 6379
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --replicaof redis-master-1 6379
+      --appendonly yes
+      --appendfsync everysec
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-replica-1-data:/data
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-1
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # Redis Sentinel 1
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: redis-sentinel-1
+    command: >
+      redis-sentinel
+      /etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/etc/redis/sentinel.conf:ro
+    ports:
+      - "26379:26379"
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-1
+    restart: unless-stopped
+
+  # Redis Sentinel 2
+  redis-sentinel-2:
+    image: redis:7-alpine
+    container_name: redis-sentinel-2
+    command: >
+      redis-sentinel
+      /etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/etc/redis/sentinel.conf:ro
+    ports:
+      - "26380:26379"
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-1
+    restart: unless-stopped
+
+  # Redis Sentinel 3
+  redis-sentinel-3:
+    image: redis:7-alpine
+    container_name: redis-sentinel-3
+    command: >
+      redis-sentinel
+      /etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/etc/redis/sentinel.conf:ro
+    ports:
+      - "26381:26379"
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-1
+    restart: unless-stopped
+
+volumes:
+  redis-master-1-data:
+  redis-replica-1-data:
+
+networks:
+  elixir-network:
+    external: true
+

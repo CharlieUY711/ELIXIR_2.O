@@ -1,0 +1,39 @@
+# Pod Disruption Budgets para Alta Disponibilidad
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: elixir-core-pdb
+  namespace: elixir
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: elixir-core
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: chat-orchestrator-pdb
+  namespace: elixir
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: chat-orchestrator
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: whatsapp-edge-pdb
+  namespace: elixir
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: whatsapp-edge
+

@@ -1,0 +1,14 @@
+{
+  "PolicyName": "elixir-core-cpu-scaling",
+  "AutoScalingGroupName": "elixir-core-asg",
+  "PolicyType": "TargetTrackingScaling",
+  "TargetTrackingConfiguration": {
+    "PredefinedMetricSpecification": {
+      "PredefinedMetricType": "ASGAverageCPUUtilization"
+    },
+    "TargetValue": 70.0,
+    "ScaleInCooldown": 300,
+    "ScaleOutCooldown": 60
+  }
+}
+

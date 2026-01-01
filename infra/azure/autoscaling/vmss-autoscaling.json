@@ -1,0 +1,123 @@
+{
+  "location": "eastus",
+  "sku": {
+    "name": "Standard_D2s_v3",
+    "tier": "Standard",
+    "capacity": 2
+  },
+  "properties": {
+    "upgradePolicy": {
+      "mode": "Automatic"
+    },
+    "virtualMachineProfile": {
+      "osProfile": {
+        "computerNamePrefix": "elixir-core",
+        "adminUsername": "azureuser",
+        "linuxConfiguration": {
+          "disablePasswordAuthentication": true,
+          "ssh": {
+            "publicKeys": [
+              {
+                "path": "/home/azureuser/.ssh/authorized_keys",
+                "keyData": "ssh-rsa ..."
+              }
+            ]
+          }
+        }
+      },
+      "storageProfile": {
+        "imageReference": {
+          "publisher": "Canonical",
+          "offer": "UbuntuServer",
+          "sku": "18.04-LTS",
+          "version": "latest"
+        },
+        "osDisk": {
+          "caching": "ReadWrite",
+          "createOption": "FromImage"
+        }
+      },
+      "networkProfile": {
+        "networkInterfaceConfigurations": [
+          {
+            "name": "elixir-core-nic",
+            "properties": {
+              "primary": true,
+              "ipConfigurations": [
+                {
+                  "name": "ipconfig1",
+                  "properties": {
+                    "subnet": {
+                      "id": "/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/virtualNetworks/xxx/subnets/xxx"
+                    },
+                    "loadBalancerBackendAddressPools": [
+                      {
+                        "id": "/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/loadBalancers/xxx/backendAddressPools/xxx"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "autoscaleSettings": {
+    "name": "elixir-core-autoscale",
+    "properties": {
+      "profiles": [
+        {
+          "name": "default",
+          "capacity": {
+            "minimum": "2",
+            "maximum": "10",
+            "default": "3"
+          },
+          "rules": [
+            {
+              "metricTrigger": {
+                "metricName": "Percentage CPU",
+                "metricResourceUri": "/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Compute/virtualMachineScaleSets/elixir-core-vmss",
+                "timeGrain": "PT1M",
+                "statistic": "Average",
+                "timeWindow": "PT5M",
+                "timeAggregation": "Average",
+                "operator": "GreaterThan",
+                "threshold": 70
+              },
+              "scaleAction": {
+                "direction": "Increase",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT5M"
+              }
+            },
+            {
+              "metricTrigger": {
+                "metricName": "Percentage CPU",
+                "metricResourceUri": "/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Compute/virtualMachineScaleSets/elixir-core-vmss",
+                "timeGrain": "PT1M",
+                "statistic": "Average",
+                "timeWindow": "PT5M",
+                "timeAggregation": "Average",
+                "operator": "LessThan",
+                "threshold": 30
+              },
+              "scaleAction": {
+                "direction": "Decrease",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT5M"
+              }
+            }
+          ]
+        }
+      ],
+      "enabled": true,
+      "targetResourceUri": "/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Compute/virtualMachineScaleSets/elixir-core-vmss"
+    }
+  }
+}
+

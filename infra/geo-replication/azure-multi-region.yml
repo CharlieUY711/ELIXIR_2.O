@@ -1,0 +1,142 @@
+# Configuración de Replicación Geográfica Multi-Región Azure
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia y Recuperación
+
+regions:
+  primary:
+    name: East US
+    location: eastus
+    resources:
+      - type: PostgreSQL
+        server_name: elixir-db-primary
+        sku_name: GP_Gen5_4
+        geo_redundant_backup: Enabled
+        replication:
+          enabled: true
+          target_regions:
+            - West US 2
+            - West Europe
+          
+      - type: Redis
+        cache_name: elixir-redis-primary
+        sku_name: Premium
+        capacity: 2
+        replication:
+          enabled: true
+          target_regions:
+            - West US 2
+            - West Europe
+            
+      - type: Container Instances
+        resource_group: elixir-primary-rg
+        services:
+          - elixir-core
+          - chat-orchestrator
+          - whatsapp-edge
+        replication:
+          enabled: true
+          target_regions:
+            - West US 2
+            - West Europe
+            
+  secondary:
+    - name: West US 2
+      location: westus2
+      failover_priority: 1
+      resources:
+        - type: PostgreSQL
+          server_name: elixir-db-secondary-west
+          read_replica: true
+          source: elixir-db-primary
+          
+        - type: Redis
+          cache_name: elixir-redis-secondary-west
+          read_replica: true
+          source: elixir-redis-primary
+          
+        - type: Container Instances
+          resource_group: elixir-secondary-west-rg
+          services:
+            - elixir-core
+            - chat-orchestrator
+            - whatsapp-edge
+          min_instances: 1
+          max_instances: 5
+          
+    - name: West Europe
+      location: westeurope
+      failover_priority: 2
+      resources:
+        - type: PostgreSQL
+          server_name: elixir-db-secondary-eu
+          read_replica: true
+          source: elixir-db-primary
+          
+        - type: Redis
+          cache_name: elixir-redis-secondary-eu
+          read_replica: true
+          source: elixir-redis-primary
+          
+        - type: Container Instances
+          resource_group: elixir-secondary-eu-rg
+          services:
+            - elixir-core
+            - chat-orchestrator
+            - whatsapp-edge
+          min_instances: 1
+          max_instances: 5
+
+# Configuración de Traffic Manager para failover geográfico
+traffic_manager:
+  profile_name: elixir-global
+  routing_method: Priority
+  endpoints:
+    - name: primary-eastus
+      target: api-primary.elixir.local
+      priority: 1
+      location: East US
+      monitor_config:
+        protocol: HTTPS
+        port: 443
+        path: /health
+        interval: 30
+        timeout: 10
+        tolerated_failures: 3
+        
+    - name: secondary-westus2
+      target: api-secondary-west.elixir.local
+      priority: 2
+      location: West US 2
+      monitor_config:
+        protocol: HTTPS
+        port: 443
+        path: /health
+        interval: 30
+        timeout: 10
+        tolerated_failures: 3
+        
+    - name: secondary-westeurope
+      target: api-secondary-eu.elixir.local
+      priority: 3
+      location: West Europe
+      monitor_config:
+        protocol: HTTPS
+        port: 443
+        path: /health
+        interval: 30
+        timeout: 10
+        tolerated_failures: 3
+
+# Configuración de Azure Blob Storage para replicación de backups
+blob_replication:
+  source_storage_account: elixirbackupsprimary
+  destination_storage_accounts:
+    - elixirbackupswest
+    - elixirbackupseu
+  replication_rules:
+    - container: postgres-backups
+      status: Enabled
+    - container: redis-backups
+      status: Enabled
+    - container: config-backups
+      status: Enabled
+

@@ -1,0 +1,166 @@
+# Docker Compose para desarrollo y pruebas de escalabilidad
+# Permite escalar servicios manualmente: docker-compose up --scale elixir-core=3
+
+version: '3.8'
+
+services:
+  # Redis para caching
+  redis:
+    image: redis:7-alpine
+    container_name: elixir-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Nginx como balanceador de carga
+  nginx-lb:
+    image: nginx:alpine
+    container_name: elixir-nginx-lb
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - elixir-core
+      - whatsapp-edge
+      - chat-orchestrator
+    networks:
+      - elixir-network
+    restart: unless-stopped
+
+  # Elixir Core - puede escalarse
+  elixir-core:
+    build:
+      context: ../../core
+      dockerfile: Dockerfile
+    container_name: elixir-core
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3000
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - elixir-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # WhatsApp Edge - puede escalarse
+  whatsapp-edge:
+    build:
+      context: ../../services/whatsapp-edge
+      dockerfile: Dockerfile
+    container_name: whatsapp-edge
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3001
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - elixir-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Chat Orchestrator - puede escalarse
+  chat-orchestrator:
+    build:
+      context: ../../services/chat-orchestrator
+      dockerfile: Dockerfile
+    container_name: chat-orchestrator
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3002
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - elixir-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Prometheus para monitoreo
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: elixir-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - elixir-network
+    restart: unless-stopped
+
+  # Grafana para visualización
+  grafana:
+    image: grafana/grafana:latest
+    container_name: elixir-grafana
+    ports:
+      - "3003:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - elixir-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  elixir-network:
+    driver: bridge
+

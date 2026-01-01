@@ -1,0 +1,50 @@
+# Configuración de Health Checks Continuos
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia y Recuperación
+
+# Health Check para Prometheus
+- job_name: 'health-checks'
+  scrape_interval: 5s
+  scrape_timeout: 3s
+  static_configs:
+    - targets:
+        # Health checks de servicios
+        - 'elixir-core-1:3000'
+        - 'elixir-core-2:3000'
+        - 'elixir-core-3:3000'
+        - 'chat-orchestrator-1:3001'
+        - 'chat-orchestrator-2:3001'
+        - 'whatsapp-edge-1:3002'
+        - 'whatsapp-edge-2:3002'
+      labels:
+        service_type: 'application'
+        
+    - targets:
+        # Health checks de bases de datos
+        - 'postgres-primary:5432'
+        - 'postgres-replica-1:5432'
+        - 'postgres-replica-2:5432'
+        - 'redis-master-1:6379'
+        - 'redis-master-2:6379'
+        - 'redis-master-3:6379'
+      labels:
+        service_type: 'database'
+        
+    - targets:
+        # Health checks de infraestructura
+        - 'traefik:8080'
+        - 'prometheus:9090'
+        - 'grafana:3000'
+      labels:
+        service_type: 'infrastructure'
+
+  metrics_path: '/health'
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: '([^:]+):(\d+)'
+      target_label: __param_target
+      replacement: '${1}:${2}'
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: 'health-check-exporter:9115'  # Health check exporter
+

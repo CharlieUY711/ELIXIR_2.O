@@ -1,0 +1,159 @@
+# Deployments con configuración de recursos para autoscaling
+# Define los recursos mínimos y máximos para cada servicio
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elixir-core
+  namespace: elixir
+  labels:
+    app: elixir-core
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: elixir-core
+  template:
+    metadata:
+      labels:
+        app: elixir-core
+        version: v1
+    spec:
+      containers:
+      - name: elixir-core
+        image: elixir/core:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2000m"
+            memory: "2Gi"
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REDIS_HOST
+          value: "redis-service"
+        - name: REDIS_PORT
+          value: "6379"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whatsapp-edge
+  namespace: elixir
+  labels:
+    app: whatsapp-edge
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: whatsapp-edge
+  template:
+    metadata:
+      labels:
+        app: whatsapp-edge
+        version: v1
+    spec:
+      containers:
+      - name: whatsapp-edge
+        image: elixir/whatsapp-edge:latest
+        ports:
+        - containerPort: 3001
+          name: http
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REDIS_HOST
+          value: "redis-service"
+        - name: REDIS_PORT
+          value: "6379"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-orchestrator
+  namespace: elixir
+  labels:
+    app: chat-orchestrator
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-orchestrator
+  template:
+    metadata:
+      labels:
+        app: chat-orchestrator
+        version: v1
+    spec:
+      containers:
+      - name: chat-orchestrator
+        image: elixir/chat-orchestrator:latest
+        ports:
+        - containerPort: 3002
+          name: http
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REDIS_HOST
+          value: "redis-service"
+        - name: REDIS_PORT
+          value: "6379"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+

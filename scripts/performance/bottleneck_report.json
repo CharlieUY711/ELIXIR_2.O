@@ -1,0 +1,279 @@
+{
+  "fase": "6.2",
+  "titulo": "Identificación de Cuellos de Botella",
+  "fecha_analisis": "2024-01-15",
+  "version_sistema": "ELIXIR_2.0",
+  "resumen_ejecutivo": {
+    "total_cuellos_identificados": 5,
+    "criticidad_alta": 2,
+    "criticidad_media": 2,
+    "criticidad_baja": 1,
+    "recomendacion_prioritaria": "Optimizar pipeline de reglas del Core y migrar TempStore a solución persistente"
+  },
+  "cuellos_de_botella": [
+    {
+      "id": "BOTTLENECK-001",
+      "componente": "Elixir Core - Pipeline de Reglas",
+      "ubicacion": "core/src/rules/Pipeline.ts",
+      "tipo": "CPU/Procesamiento",
+      "criticidad": "ALTA",
+      "descripcion": "El pipeline de evaluación de reglas ejecuta todas las etapas de forma secuencial y síncrona. Con múltiples reglas, esto puede convertirse en un cuello de botella significativo.",
+      "sintomas": [
+        "Latencia creciente en authorize() con múltiples reglas",
+        "Alto consumo de CPU durante picos de tráfico",
+        "Tiempo de respuesta proporcional al número de reglas"
+      ],
+      "metricas_afectadas": [
+        "authorize_total",
+        "authorize_latency_ms",
+        "pipeline_execution_time_ms"
+      ],
+      "impacto_estimado": {
+        "latencia_adicional_por_regla": "5-15ms",
+        "escalabilidad": "Lineal negativa con número de reglas",
+        "punto_critico": ">10 reglas activas simultáneamente"
+      },
+      "recomendaciones": [
+        "Implementar evaluación paralela de reglas independientes",
+        "Cachear resultados de reglas deterministas cuando sea posible",
+        "Implementar short-circuit más agresivo en reglas DENY",
+        "Considerar evaluación lazy de reglas costosas"
+      ],
+      "prioridad_optimizacion": 1
+    },
+    {
+      "id": "BOTTLENECK-002",
+      "componente": "WhatsApp Edge - TempStore In-Memory",
+      "ubicacion": "services/whatsapp-edge/src/storage/",
+      "tipo": "Memoria/Escalabilidad",
+      "criticidad": "ALTA",
+      "descripcion": "El TempStore actual es in-memory, lo que limita la escalabilidad horizontal y puede causar pérdida de datos en reinicios. Además, la limpieza de TTL puede ser costosa con muchos handoffs activos.",
+      "sintomas": [
+        "Consumo de memoria creciente con handoffs activos",
+        "Pérdida de handoffs en reinicios del servicio",
+        "Limpieza de TTL bloqueante o costosa",
+        "Imposibilidad de escalar horizontalmente"
+      ],
+      "metricas_afectadas": [
+        "handoffs_created_total",
+        "handoffs_expired_total",
+        "memory_usage_mb",
+        "ttl_cleanup_duration_ms"
+      ],
+      "impacto_estimado": {
+        "memoria_por_handoff": "~1KB",
+        "limite_estimado": "~10,000 handoffs activos antes de problemas de memoria",
+        "tiempo_limpieza_ttl": "O(n) donde n = handoffs activos"
+      },
+      "recomendaciones": [
+        "Migrar a Redis o base de datos con TTL nativo",
+        "Implementar limpieza asíncrona de TTL",
+        "Considerar particionamiento de handoffs por timestamp",
+        "Implementar límite máximo de handoffs activos"
+      ],
+      "prioridad_optimizacion": 1
+    },
+    {
+      "id": "BOTTLENECK-003",
+      "componente": "WhatsApp Edge - Timeout del Proveedor",
+      "ubicacion": "services/whatsapp-edge/src/sender/",
+      "tipo": "I/O/Red",
+      "criticidad": "MEDIA",
+      "descripcion": "El timeout del proveedor está configurado en 10 segundos, lo que puede mantener conexiones abiertas durante mucho tiempo y limitar el throughput del sistema.",
+      "sintomas": [
+        "Conexiones HTTP abiertas por hasta 10 segundos",
+        "Throughput limitado por tiempo de espera",
+        "Acumulación de requests en espera durante fallas del proveedor"
+      ],
+      "metricas_afectadas": [
+        "provider_execution_duration_ms",
+        "provider_timeout_total",
+        "concurrent_requests",
+        "provider_execution_failed_total"
+      ],
+      "impacto_estimado": {
+        "timeout_actual": "10000ms",
+        "throughput_maximo_teorico": "~6 requests/segundo por worker (con timeout de 10s)",
+        "tiempo_perdido_en_fallos": "Hasta 10s por request fallido"
+      },
+      "recomendaciones": [
+        "Reducir timeout a 5-7 segundos si el proveedor lo permite",
+        "Implementar circuit breaker para fallas repetidas",
+        "Considerar timeouts diferenciados por tipo de operación",
+        "Monitorear latencia p95 del proveedor para ajustar timeout"
+      ],
+      "prioridad_optimizacion": 2
+    },
+    {
+      "id": "BOTTLENECK-004",
+      "componente": "Elixir Core - Stress Detection",
+      "ubicacion": "core/src/stress/StressDetector.ts",
+      "tipo": "CPU/Procesamiento",
+      "criticidad": "MEDIA",
+      "descripcion": "La detección de estrés se ejecuta en cada request y puede involucrar cálculos que añaden latencia al flujo crítico de autorización.",
+      "sintomas": [
+        "Latencia adicional en cada authorize()",
+        "Consumo de CPU para cálculos de estrés",
+        "Posible bloqueo si el cálculo es costoso"
+      ],
+      "metricas_afectadas": [
+        "authorize_latency_ms",
+        "stress_detection_duration_ms",
+        "cpu_usage_percent"
+      ],
+      "impacto_estimado": {
+        "latencia_adicional": "2-5ms por request",
+        "frecuencia": "100% de los requests",
+        "costo_acumulado": "Significativo en alto volumen"
+      },
+      "recomendaciones": [
+        "Optimizar algoritmo de detección de estrés",
+        "Considerar evaluación periódica en lugar de por-request",
+        "Cachear resultados de detección por ventana de tiempo",
+        "Mover detección a proceso separado si es necesario"
+      ],
+      "prioridad_optimizacion": 3
+    },
+    {
+      "id": "BOTTLENECK-005",
+      "componente": "Elixir Core - Validaciones Síncronas",
+      "ubicacion": "core/src/runtime/validator.ts",
+      "tipo": "CPU/Procesamiento",
+      "criticidad": "BAJA",
+      "descripcion": "Todas las validaciones (schema, deadlines, límites) se ejecutan de forma síncrona y secuencial, lo que puede añadir latencia acumulada.",
+      "sintomas": [
+        "Latencia en validación de requests complejos",
+        "Validación de deadlines en cada request",
+        "Validación de schema con objetos grandes"
+      ],
+      "metricas_afectadas": [
+        "authorize_latency_ms",
+        "validation_duration_ms",
+        "authorize_error_total"
+      ],
+      "impacto_estimado": {
+        "latencia_validacion": "1-3ms por request",
+        "impacto_relativo": "Bajo comparado con otros cuellos",
+        "mejora_potencial": "10-20% de reducción de latencia"
+      },
+      "recomendaciones": [
+        "Optimizar validación de schema (usar validadores más eficientes)",
+        "Validar deadlines solo cuando sea necesario",
+        "Considerar validación temprana de campos críticos",
+        "Implementar validación incremental cuando sea posible"
+      ],
+      "prioridad_optimizacion": 4
+    }
+  ],
+  "analisis_por_componente": {
+    "elixir_core": {
+      "cuellos_identificados": 3,
+      "impacto_total": "ALTO",
+      "componentes_afectados": [
+        "Pipeline de Reglas",
+        "Stress Detection",
+        "Validaciones"
+      ],
+      "recomendacion_general": "El Core requiere optimización del pipeline y evaluación de estrés para mejorar throughput"
+    },
+    "whatsapp_edge": {
+      "cuellos_identificados": 2,
+      "impacto_total": "ALTO",
+      "componentes_afectados": [
+        "TempStore",
+        "Timeout del Proveedor"
+      ],
+      "recomendacion_general": "Migración de TempStore a solución persistente es crítica para escalabilidad"
+    },
+    "chat_orchestrator": {
+      "cuellos_identificados": 0,
+      "impacto_total": "BAJO",
+      "nota": "No se identificaron cuellos de botella específicos en esta fase de análisis"
+    },
+    "catalogo_frontend": {
+      "cuellos_identificados": 0,
+      "impacto_total": "BAJO",
+      "nota": "Frontend estático, no se identificaron cuellos de botella en esta fase"
+    }
+  },
+  "metricas_sistema": {
+    "timeouts_configurados": {
+      "core_deadline_validation": "Por request (deadline_at/deadline_ms)",
+      "wam_storage_timeout": "2000ms",
+      "wam_provider_timeout": "10000ms",
+      "wam_total_timeout": "15000ms"
+    },
+    "limites_operativos": {
+      "wam_handoffs_diarios": 100,
+      "wam_usuarios_simultaneos": 10,
+      "wam_rate_limit_resoluciones": "10/min por IP",
+      "wam_rate_limit_creaciones": "5/min por sesión"
+    },
+    "recursos_estimados": {
+      "memoria_por_handoff": "~1KB",
+      "cpu_por_authorize": "Variable según número de reglas",
+      "latencia_promedio_authorize": "5-50ms (depende de reglas)",
+      "latencia_promedio_handoff": "100-500ms"
+    }
+  },
+  "plan_optimizacion_recomendado": {
+    "fase_1_critica": {
+      "duracion_estimada": "2-3 semanas",
+      "cuellos": ["BOTTLENECK-001", "BOTTLENECK-002"],
+      "acciones": [
+        "Optimizar pipeline de reglas con evaluación paralela",
+        "Migrar TempStore a Redis con TTL nativo",
+        "Implementar limpieza asíncrona de TTL"
+      ],
+      "impacto_esperado": "Reducción de 40-60% en latencia del Core, escalabilidad horizontal del WAM"
+    },
+    "fase_2_mejoras": {
+      "duracion_estimada": "1-2 semanas",
+      "cuellos": ["BOTTLENECK-003", "BOTTLENECK-004"],
+      "acciones": [
+        "Reducir timeout del proveedor a 5-7 segundos",
+        "Implementar circuit breaker",
+        "Optimizar detección de estrés"
+      ],
+      "impacto_esperado": "Mejora de 20-30% en throughput del WAM, reducción de latencia del Core"
+    },
+    "fase_3_ajustes": {
+      "duracion_estimada": "1 semana",
+      "cuellos": ["BOTTLENECK-005"],
+      "acciones": [
+        "Optimizar validaciones síncronas",
+        "Implementar validación temprana de campos críticos"
+      ],
+      "impacto_esperado": "Reducción adicional de 10-20% en latencia del Core"
+    }
+  },
+  "riesgos_asociados": [
+    {
+      "riesgo": "Degradación de seguridad al optimizar",
+      "mitigacion": "Mantener fail-closed absoluto, no relajar validaciones críticas"
+    },
+    {
+      "riesgo": "Pérdida de datos durante migración de TempStore",
+      "mitigacion": "Implementar migración gradual, mantener ambos sistemas durante transición"
+    },
+    {
+      "riesgo": "Aumento de complejidad con evaluación paralela",
+      "mitigacion": "Mantener tests exhaustivos, documentar cambios, validar determinismo"
+    }
+  ],
+  "siguientes_pasos": [
+    "Validar métricas actuales en ambiente de producción/staging",
+    "Priorizar optimizaciones según impacto medido",
+    "Implementar monitoreo detallado de métricas identificadas",
+    "Crear pruebas de carga para validar mejoras",
+    "Documentar cambios y actualizar runbooks operativos"
+  ],
+  "notas_adicionales": [
+    "Este análisis se basa en la arquitectura documentada y código fuente revisado",
+    "Las métricas estimadas deben validarse con mediciones reales en producción",
+    "Algunos cuellos de botella pueden no manifestarse hasta alcanzar cierto volumen",
+    "El sistema está diseñado con fail-closed, lo que puede afectar métricas de throughput",
+    "Los timeouts actuales están alineados con GO CONTROLADO y pueden ajustarse en producción"
+  ]
+}
+

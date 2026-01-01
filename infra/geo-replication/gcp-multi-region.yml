@@ -1,0 +1,145 @@
+# Configuración de Replicación Geográfica Multi-Región GCP
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia y Recuperación
+
+regions:
+  primary:
+    name: us-central1
+    description: "Región primaria (Iowa)"
+    resources:
+      - type: Cloud SQL
+        instance_name: elixir-db-primary
+        database_version: POSTGRES_15
+        tier: db-custom-4-15360
+        availability_type: REGIONAL
+        backup_configuration:
+          enabled: true
+          start_time: "02:00"
+          point_in_time_recovery: true
+        replication:
+          enabled: true
+          target_regions:
+            - us-west1
+            - europe-west1
+          
+      - type: Memorystore
+        instance_name: elixir-redis-primary
+        tier: STANDARD_HA
+        memory_size_gb: 4
+        replication:
+          enabled: true
+          target_regions:
+            - us-west1
+            - europe-west1
+            
+      - type: Cloud Run
+        services:
+          - elixir-core
+          - chat-orchestrator
+          - whatsapp-edge
+        min_instances: 2
+        max_instances: 10
+        replication:
+          enabled: true
+          target_regions:
+            - us-west1
+            - europe-west1
+            
+  secondary:
+    - name: us-west1
+      description: "Región secundaria (Oregon)"
+      failover_priority: 1
+      resources:
+        - type: Cloud SQL
+          instance_name: elixir-db-secondary-west
+          read_replica: true
+          source: elixir-db-primary
+          
+        - type: Memorystore
+          instance_name: elixir-redis-secondary-west
+          read_replica: true
+          source: elixir-redis-primary
+          
+        - type: Cloud Run
+          services:
+            - elixir-core
+            - chat-orchestrator
+            - whatsapp-edge
+          min_instances: 1
+          max_instances: 5
+          
+    - name: europe-west1
+      description: "Región secundaria (Bélgica)"
+      failover_priority: 2
+      resources:
+        - type: Cloud SQL
+          instance_name: elixir-db-secondary-eu
+          read_replica: true
+          source: elixir-db-primary
+          
+        - type: Memorystore
+          instance_name: elixir-redis-secondary-eu
+          read_replica: true
+          source: elixir-redis-primary
+          
+        - type: Cloud Run
+          services:
+            - elixir-core
+            - chat-orchestrator
+            - whatsapp-edge
+          min_instances: 1
+          max_instances: 5
+
+# Configuración de Cloud Load Balancing para failover geográfico
+load_balancing:
+  name: elixir-global-lb
+  type: HTTP(S)
+  backends:
+    - name: primary-backend
+      region: us-central1
+      health_check:
+        path: /health
+        check_interval_sec: 30
+        timeout_sec: 10
+        healthy_threshold: 2
+        unhealthy_threshold: 3
+      failover_priority: 1
+      
+    - name: secondary-west-backend
+      region: us-west1
+      health_check:
+        path: /health
+        check_interval_sec: 30
+        timeout_sec: 10
+        healthy_threshold: 2
+        unhealthy_threshold: 3
+      failover_priority: 2
+      
+    - name: secondary-eu-backend
+      region: europe-west1
+      health_check:
+        path: /health
+        check_interval_sec: 30
+        timeout_sec: 10
+        healthy_threshold: 2
+        unhealthy_threshold: 3
+      failover_priority: 3
+      
+  routing:
+    - path: /*
+      backend: primary-backend
+      failover: true
+
+# Configuración de Cloud Storage para replicación de backups
+storage_replication:
+  source_bucket: elixir-backups-primary
+  destination_buckets:
+    - elixir-backups-west
+    - elixir-backups-eu
+  replication_config:
+    - prefix: postgres/
+      status: Enabled
+    - prefix: redis/
+      status: Enabled
+    - prefix: config/
+      status: Enabled
+

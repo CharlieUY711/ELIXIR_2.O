@@ -35,6 +35,10 @@ tmp/
 temp/
 *.tmp
 
+# Performance reports
+performance_reports/
+reports/performance/
+
 # OS
 Thumbs.db
 .DS_Store

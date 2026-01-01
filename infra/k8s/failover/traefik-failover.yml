@@ -1,0 +1,105 @@
+# Configuración de Failover para Traefik
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia y Recuperación
+
+http:
+  routers:
+    elixir-core:
+      rule: "Host(`api.elixir.local`)"
+      service: elixir-core-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - circuit-breaker
+        - retry
+        
+    chat-orchestrator:
+      rule: "Host(`chat.elixir.local`)"
+      service: chat-orchestrator-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - circuit-breaker
+        - retry
+        
+    whatsapp-edge:
+      rule: "Host(`whatsapp.elixir.local`)"
+      service: whatsapp-edge-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - circuit-breaker
+        - retry
+
+  services:
+    elixir-core-service:
+      loadBalancer:
+        healthCheck:
+          path: /health/ready
+          interval: 10s
+          timeout: 5s
+          scheme: http
+        servers:
+          - url: "http://elixir-core-1:3000"
+          - url: "http://elixir-core-2:3000"
+          - url: "http://elixir-core-3:3000"
+        passHostHeader: true
+        sticky:
+          cookie:
+            name: elixir-sticky
+            secure: true
+            httpOnly: true
+            
+    chat-orchestrator-service:
+      loadBalancer:
+        healthCheck:
+          path: /health/ready
+          interval: 10s
+          timeout: 5s
+          scheme: http
+        servers:
+          - url: "http://chat-orchestrator-1:3001"
+          - url: "http://chat-orchestrator-2:3001"
+        passHostHeader: true
+        
+    whatsapp-edge-service:
+      loadBalancer:
+        healthCheck:
+          path: /health/ready
+          interval: 10s
+          timeout: 5s
+          scheme: http
+        servers:
+          - url: "http://whatsapp-edge-1:3002"
+          - url: "http://whatsapp-edge-2:3002"
+        passHostHeader: true
+
+  middlewares:
+    # Circuit Breaker Middleware
+    circuit-breaker:
+      circuitBreaker:
+        expression: "NetworkErrorRatio() > 0.30"
+        checkPeriod: 10s
+        fallbackDuration: 30s
+        recoveryDuration: 30s
+        
+    # Retry Middleware
+    retry:
+      retry:
+        attempts: 3
+        initialInterval: 100ms
+        maxInterval: 1s
+        multiplier: 2
+        
+    # Rate Limiting
+    rate-limit:
+      rateLimit:
+        average: 100
+        period: 1s
+        burst: 50
+

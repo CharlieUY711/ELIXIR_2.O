@@ -1,0 +1,217 @@
+# Docker Compose para Arquitectura Escalable
+# Para ELIXIR 2.0 - Fase 7.2
+
+version: '3.8'
+
+services:
+  # Load Balancer - Traefik
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@elixir.local"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./load-balancer/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./load-balancer/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - traefik-letsencrypt:/letsencrypt
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.elixir.local`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+
+  # Elixir Core - Múltiples réplicas
+  elixir-core-1:
+    build:
+      context: ../../core
+      dockerfile: Dockerfile
+    container_name: elixir-core-1
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://elixir_user:${POSTGRES_PASSWORD}@pgbouncer:6432/elixir
+      - REDIS_URL=redis://redis-master-1:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.elixir-core-service.loadbalancer.server.port=3000"
+    depends_on:
+      - pgbouncer
+      - redis-master-1
+
+  elixir-core-2:
+    build:
+      context: ../../core
+      dockerfile: Dockerfile
+    container_name: elixir-core-2
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://elixir_user:${POSTGRES_PASSWORD}@pgbouncer:6432/elixir
+      - REDIS_URL=redis://redis-master-2:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.elixir-core-service.loadbalancer.server.port=3000"
+    depends_on:
+      - pgbouncer
+      - redis-master-2
+
+  elixir-core-3:
+    build:
+      context: ../../core
+      dockerfile: Dockerfile
+    container_name: elixir-core-3
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://elixir_user:${POSTGRES_PASSWORD}@pgbouncer:6432/elixir
+      - REDIS_URL=redis://redis-master-3:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.elixir-core-service.loadbalancer.server.port=3000"
+    depends_on:
+      - pgbouncer
+      - redis-master-3
+
+  # Chat Orchestrator - Múltiples réplicas
+  chat-orchestrator-1:
+    build:
+      context: ../../services/chat-orchestrator
+      dockerfile: Dockerfile
+    container_name: chat-orchestrator-1
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_URL=redis://redis-master-1:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.chat-orchestrator-service.loadbalancer.server.port=3001"
+    depends_on:
+      - redis-master-1
+
+  chat-orchestrator-2:
+    build:
+      context: ../../services/chat-orchestrator
+      dockerfile: Dockerfile
+    container_name: chat-orchestrator-2
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_URL=redis://redis-master-2:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.chat-orchestrator-service.loadbalancer.server.port=3001"
+    depends_on:
+      - redis-master-2
+
+  # WhatsApp Edge - Múltiples réplicas
+  whatsapp-edge-1:
+    build:
+      context: ../../services/whatsapp-edge
+      dockerfile: Dockerfile
+    container_name: whatsapp-edge-1
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - REDIS_URL=redis://redis-master-1:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.whatsapp-edge-service.loadbalancer.server.port=3002"
+    depends_on:
+      - redis-master-1
+
+  whatsapp-edge-2:
+    build:
+      context: ../../services/whatsapp-edge
+      dockerfile: Dockerfile
+    container_name: whatsapp-edge-2
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - REDIS_URL=redis://redis-master-2:6379
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.whatsapp-edge-service.loadbalancer.server.port=3002"
+    depends_on:
+      - redis-master-2
+
+  # Monitoreo - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts:/etc/prometheus/alerts:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - elixir-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.elixir.local`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+
+  # Monitoreo - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3003:3000"
+    networks:
+      - elixir-network
+    depends_on:
+      - prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.elixir.local`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+
+volumes:
+  traefik-letsencrypt:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  elixir-network:
+    driver: bridge
+

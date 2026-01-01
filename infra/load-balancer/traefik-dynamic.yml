@@ -1,0 +1,119 @@
+# Configuración dinámica de Traefik
+# Para ELIXIR 2.0 - Arquitectura Escalable
+
+http:
+  middlewares:
+    # Circuit breaker para protección contra fallos
+    circuit-breaker:
+      circuitBreaker:
+        expression: "NetworkErrorRatio() > 0.30"
+    
+    # Retry con backoff exponencial
+    retry:
+      retry:
+        attempts: 3
+        initialInterval: 100ms
+    
+    # Compresión
+    compress:
+      compress: {}
+    
+    # Timeout
+    timeout:
+      forwardAuth:
+        address: ""
+        authResponseHeaders:
+          - "X-User-Id"
+        trustForwardHeader: true
+
+  routers:
+    # Router para elixir-core
+    elixir-core:
+      rule: "Host(`api.elixir.local`) && PathPrefix(`/api/core`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - security-headers
+        - api-rate-limit
+        - compress
+        - retry
+        - circuit-breaker
+      service: elixir-core-service
+      tls:
+        certResolver: letsencrypt
+    
+    # Router para chat-orchestrator
+    chat-orchestrator:
+      rule: "Host(`api.elixir.local`) && PathPrefix(`/api/chat`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - security-headers
+        - chat-rate-limit
+        - compress
+        - retry
+        - circuit-breaker
+      service: chat-orchestrator-service
+      tls:
+        certResolver: letsencrypt
+    
+    # Router para whatsapp-edge
+    whatsapp-edge:
+      rule: "Host(`api.elixir.local`) && PathPrefix(`/api/whatsapp`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - security-headers
+        - api-rate-limit
+        - compress
+        - retry
+        - circuit-breaker
+      service: whatsapp-edge-service
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    # Servicio elixir-core con load balancing
+    elixir-core-service:
+      loadBalancer:
+        servers:
+          - url: "http://elixir-core-1:3000"
+          - url: "http://elixir-core-2:3000"
+          - url: "http://elixir-core-3:3000"
+        healthCheck:
+          path: "/health"
+          interval: "10s"
+          timeout: "3s"
+        passHostHeader: true
+        sticky:
+          cookie:
+            name: "elixir-core-sticky"
+            secure: true
+            httpOnly: true
+    
+    # Servicio chat-orchestrator con load balancing
+    chat-orchestrator-service:
+      loadBalancer:
+        servers:
+          - url: "http://chat-orchestrator-1:3001"
+          - url: "http://chat-orchestrator-2:3001"
+          - url: "http://chat-orchestrator-3:3001"
+        healthCheck:
+          path: "/health"
+          interval: "10s"
+          timeout: "3s"
+        passHostHeader: true
+    
+    # Servicio whatsapp-edge con load balancing
+    whatsapp-edge-service:
+      loadBalancer:
+        servers:
+          - url: "http://whatsapp-edge-1:3002"
+          - url: "http://whatsapp-edge-2:3002"
+          - url: "http://whatsapp-edge-3:3002"
+        healthCheck:
+          path: "/health"
+          interval: "10s"
+          timeout: "3s"
+        passHostHeader: true
+

@@ -1,0 +1,45 @@
+# Ingress para ELIXIR 2.0
+# Para Kubernetes - Arquitectura Escalable
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: elixir-ingress
+  namespace: elixir
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  tls:
+  - hosts:
+    - api.elixir.local
+    secretName: elixir-tls
+  rules:
+  - host: api.elixir.local
+    http:
+      paths:
+      - path: /api/core
+        pathType: Prefix
+        backend:
+          service:
+            name: elixir-core
+            port:
+              number: 3000
+      - path: /api/chat
+        pathType: Prefix
+        backend:
+          service:
+            name: chat-orchestrator
+            port:
+              number: 3001
+      - path: /api/whatsapp
+        pathType: Prefix
+        backend:
+          service:
+            name: whatsapp-edge
+            port:
+              number: 3002
+

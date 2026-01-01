@@ -1,0 +1,173 @@
+# Alertas de Redundancia y Alta Disponibilidad
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia
+
+groups:
+  - name: redundancy
+    interval: 30s
+    rules:
+      # Alertas de PostgreSQL
+      - alert: PostgreSQLPrimaryDown
+        expr: up{job="postgres-primary"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL Primary está caído"
+          description: "El servidor PostgreSQL primary ha estado caído por más de 1 minuto. Failover automático debería activarse."
+
+      - alert: PostgreSQLReplicasOutOfSync
+        expr: (pg_replication_lag_seconds > 60) and (pg_replication_lag_seconds < 3600)
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Réplicas de PostgreSQL fuera de sincronización"
+          description: "Una o más réplicas de PostgreSQL tienen un lag de replicación mayor a 60 segundos."
+
+      - alert: PostgreSQLReplicasCriticalLag
+        expr: pg_replication_lag_seconds > 3600
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Lag crítico en réplicas de PostgreSQL"
+          description: "Una o más réplicas de PostgreSQL tienen un lag de replicación mayor a 1 hora."
+
+      - alert: PostgreSQLFailoverDetected
+        expr: changes(pg_is_in_recovery[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Failover de PostgreSQL detectado"
+          description: "Se detectó un cambio en el estado de replicación de PostgreSQL, posible failover."
+
+      # Alertas de Redis
+      - alert: RedisMasterDown
+        expr: up{job="redis-master"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis Master está caído"
+          description: "El servidor Redis master ha estado caído por más de 1 minuto. Failover automático debería activarse."
+
+      - alert: RedisSentinelQuorumLost
+        expr: redis_sentinel_known_sentinels < 2
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Quorum de Redis Sentinel perdido"
+          description: "Menos de 2 sentinels están disponibles, el failover automático puede no funcionar."
+
+      - alert: RedisReplicaDown
+        expr: up{job="redis-replica"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Réplica de Redis caída"
+          description: "Una réplica de Redis ha estado caída por más de 5 minutos."
+
+      # Alertas de Servicios
+      - alert: ServiceReplicasBelowMinimum
+        expr: kube_deployment_status_replicas_available{namespace="elixir"} < 2
+        for: 5m
+        labels:
+          severity: warning
+          component: service
+        annotations:
+          summary: "Servicio con menos réplicas que el mínimo"
+          description: "El servicio {{ $labels.deployment }} tiene menos de 2 réplicas disponibles."
+
+      - alert: ServiceAllReplicasDown
+        expr: kube_deployment_status_replicas_available{namespace="elixir"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: service
+        annotations:
+          summary: "Todas las réplicas del servicio están caídas"
+          description: "El servicio {{ $labels.deployment }} no tiene réplicas disponibles."
+
+      - alert: ServicePodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total{namespace="elixir"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: service
+        annotations:
+          summary: "Pod en crash loop"
+          description: "El pod {{ $labels.pod }} está reiniciándose continuamente."
+
+      # Alertas de Backups
+      - alert: BackupFailed
+        expr: backup_last_success_timestamp < (time() - 86400)
+        for: 1h
+        labels:
+          severity: critical
+          component: backup
+        annotations:
+          summary: "Backup fallido"
+          description: "No se ha completado un backup exitoso en las últimas 24 horas."
+
+      - alert: BackupRPOExceeded
+        expr: (time() - backup_last_success_timestamp) > 3600
+        for: 1h
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "RPO excedido"
+          description: "El último backup exitoso fue hace más de 1 hora, excediendo el RPO objetivo."
+
+      # Alertas de Health Checks
+      - alert: ServiceHealthCheckFailing
+        expr: up{job="elixir-services"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: service
+        annotations:
+          summary: "Health check del servicio fallando"
+          description: "El health check del servicio {{ $labels.service }} ha estado fallando por más de 2 minutos."
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Pool de conexiones de base de datos agotado"
+          description: "El pool de conexiones de PostgreSQL está al 90% de su capacidad."
+
+      # Alertas de Circuit Breaker
+      - alert: CircuitBreakerOpen
+        expr: circuit_breaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: warning
+          component: resilience
+        annotations:
+          summary: "Circuit breaker abierto"
+          description: "El circuit breaker para {{ $labels.service }} está abierto, bloqueando solicitudes."
+
+      - alert: CircuitBreakerOpenExtended
+        expr: circuit_breaker_state{state="open"} == 1
+        for: 10m
+        labels:
+          severity: critical
+          component: resilience
+        annotations:
+          summary: "Circuit breaker abierto por tiempo extendido"
+          description: "El circuit breaker para {{ $labels.service }} ha estado abierto por más de 10 minutos."
+

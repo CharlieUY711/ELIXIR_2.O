@@ -1,0 +1,26 @@
+{
+  "name": "elixir-performance-analysis",
+  "version": "1.0.0",
+  "description": "Script de análisis de rendimiento para Elixir Platform - Fase 6.1",
+  "main": "analyze-performance.js",
+  "scripts": {
+    "analyze": "ts-node analyze-performance.ts",
+    "optimize": "ts-node optimize-performance.ts",
+    "apply": "ts-node apply-optimizations.ts",
+    "apply:dry-run": "ts-node apply-optimizations.ts --dry-run",
+    "build": "tsc",
+    "start": "node dist/analyze-performance.js"
+  },
+  "keywords": ["performance", "metrics", "analysis"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "systeminformation": "^5.21.20"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
+

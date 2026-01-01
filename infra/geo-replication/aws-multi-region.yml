@@ -1,0 +1,141 @@
+# Configuración de Replicación Geográfica Multi-Región AWS
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia y Recuperación
+
+# Configuración para replicación entre regiones AWS
+regions:
+  primary:
+    name: us-east-1
+    description: "Región primaria (N. Virginia)"
+    resources:
+      - type: RDS
+        identifier: elixir-db-primary
+        engine: postgres
+        version: "15.4"
+        instance_class: db.r5.xlarge
+        multi_az: true
+        backup_retention: 35
+        replication:
+          enabled: true
+          target_regions:
+            - us-west-2
+            - eu-west-1
+          
+      - type: ElastiCache
+        identifier: elixir-redis-primary
+        engine: redis
+        node_type: cache.r6g.xlarge
+        num_cache_nodes: 3
+        replication:
+          enabled: true
+          target_regions:
+            - us-west-2
+            - eu-west-1
+            
+      - type: ECS
+        cluster: elixir-primary
+        services:
+          - elixir-core
+          - chat-orchestrator
+          - whatsapp-edge
+        replication:
+          enabled: true
+          target_regions:
+            - us-west-2
+            - eu-west-1
+            
+  secondary:
+    - name: us-west-2
+      description: "Región secundaria (Oregon)"
+      failover_priority: 1
+      resources:
+        - type: RDS
+          identifier: elixir-db-secondary-west
+          read_replica: true
+          source: elixir-db-primary
+          
+        - type: ElastiCache
+          identifier: elixir-redis-secondary-west
+          read_replica: true
+          source: elixir-redis-primary
+          
+        - type: ECS
+          cluster: elixir-secondary-west
+          services:
+            - elixir-core
+            - chat-orchestrator
+            - whatsapp-edge
+          min_capacity: 1
+          max_capacity: 5
+          
+    - name: eu-west-1
+      description: "Región secundaria (Irlanda)"
+      failover_priority: 2
+      resources:
+        - type: RDS
+          identifier: elixir-db-secondary-eu
+          read_replica: true
+          source: elixir-db-primary
+          
+        - type: ElastiCache
+          identifier: elixir-redis-secondary-eu
+          read_replica: true
+          source: elixir-redis-primary
+          
+        - type: ECS
+          cluster: elixir-secondary-eu
+          services:
+            - elixir-core
+            - chat-orchestrator
+            - whatsapp-edge
+          min_capacity: 1
+          max_capacity: 5
+
+# Configuración de Route 53 para failover geográfico
+route53:
+  health_checks:
+    - name: primary-health-check
+      type: HTTP
+      resource_path: /health
+      failure_threshold: 3
+      request_interval: 30
+      
+    - name: secondary-west-health-check
+      type: HTTP
+      resource_path: /health
+      failure_threshold: 3
+      request_interval: 30
+      
+    - name: secondary-eu-health-check
+      type: HTTP
+      resource_path: /health
+      failure_threshold: 3
+      request_interval: 30
+      
+  records:
+    - name: api.elixir.local
+      type: A
+      alias: true
+      failover: true
+      primary:
+        region: us-east-1
+        health_check: primary-health-check
+      secondary:
+        - region: us-west-2
+          health_check: secondary-west-health-check
+        - region: eu-west-1
+          health_check: secondary-eu-health-check
+
+# Configuración de S3 Cross-Region Replication para backups
+s3_replication:
+  source_bucket: elixir-backups-us-east-1
+  destination_buckets:
+    - elixir-backups-us-west-2
+    - elixir-backups-eu-west-1
+  rules:
+    - prefix: postgres/
+      status: Enabled
+    - prefix: redis/
+      status: Enabled
+    - prefix: config/
+      status: Enabled
+

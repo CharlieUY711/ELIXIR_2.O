@@ -1,0 +1,80 @@
+# Deployment de chat-orchestrator para Kubernetes
+# Para ELIXIR 2.0 - Arquitectura Escalable
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-orchestrator
+  namespace: elixir
+  labels:
+    app: chat-orchestrator
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-orchestrator
+  template:
+    metadata:
+      labels:
+        app: chat-orchestrator
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: chat-orchestrator
+        image: chat-orchestrator:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3001"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: elixir-secrets
+              key: redis-url
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-orchestrator
+  namespace: elixir
+  labels:
+    app: chat-orchestrator
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: http
+  selector:
+    app: chat-orchestrator
+

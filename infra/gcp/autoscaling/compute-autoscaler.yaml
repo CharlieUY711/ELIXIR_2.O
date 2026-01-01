@@ -1,0 +1,19 @@
+# Configuración de Autoscaling para GCP Compute Engine
+# Para ELIXIR 2.0 - Arquitectura Escalable
+
+name: elixir-core-autoscaler
+target: projects/PROJECT_ID/zones/ZONE/instanceGroupManagers/elixir-core-igm
+autoscalingPolicy:
+  minNumReplicas: 2
+  maxNumReplicas: 10
+  coolDownPeriodSec: 60
+  cpuUtilization:
+    utilizationTarget: 0.7
+  loadBalancingUtilization:
+    utilizationTarget: 0.8
+  mode: ON
+  scaleInControl:
+    maxScaledInReplicas:
+      fixed: 2
+    timeWindowSec: 300
+

@@ -1,0 +1,195 @@
+# Configuración de Redis Cluster
+# Para ELIXIR 2.0 - Arquitectura Escalable
+
+version: '3.8'
+
+services:
+  # Redis Master 1
+  redis-master-1:
+    image: redis:7-alpine
+    container_name: redis-master-1
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes-master-1.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-master-1-data:/data
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Redis Master 2
+  redis-master-2:
+    image: redis:7-alpine
+    container_name: redis-master-2
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes-master-2.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-master-2-data:/data
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Redis Master 3
+  redis-master-3:
+    image: redis:7-alpine
+    container_name: redis-master-3
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes-master-3.conf
+      --cluster-node-timeout 5000
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis-master-3-data:/data
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Redis Replica 1
+  redis-replica-1:
+    image: redis:7-alpine
+    container_name: redis-replica-1
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes-replica-1.conf
+      --cluster-node-timeout 5000
+      --replicaof redis-master-1 6379
+      --appendonly yes
+      --appendfsync everysec
+    ports:
+      - "6382:6379"
+    volumes:
+      - redis-replica-1-data:/data
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-1
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Redis Replica 2
+  redis-replica-2:
+    image: redis:7-alpine
+    container_name: redis-replica-2
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes-replica-2.conf
+      --cluster-node-timeout 5000
+      --replicaof redis-master-2 6379
+      --appendonly yes
+      --appendfsync everysec
+    ports:
+      - "6383:6379"
+    volumes:
+      - redis-replica-2-data:/data
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-2
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Redis Replica 3
+  redis-replica-3:
+    image: redis:7-alpine
+    container_name: redis-replica-3
+    command: >
+      redis-server
+      --port 6379
+      --cluster-enabled yes
+      --cluster-config-file nodes-replica-3.conf
+      --cluster-node-timeout 5000
+      --replicaof redis-master-3 6379
+      --appendonly yes
+      --appendfsync everysec
+    ports:
+      - "6384:6379"
+    volumes:
+      - redis-replica-3-data:/data
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-3
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Redis Sentinel (para failover automático)
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: redis-sentinel-1
+    command: >
+      redis-sentinel
+      /etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/etc/redis/sentinel.conf
+    ports:
+      - "26379:26379"
+    networks:
+      - elixir-network
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+
+volumes:
+  redis-master-1-data:
+  redis-master-2-data:
+  redis-master-3-data:
+  redis-replica-1-data:
+  redis-replica-2-data:
+  redis-replica-3-data:
+
+networks:
+  elixir-network:
+    external: true
+

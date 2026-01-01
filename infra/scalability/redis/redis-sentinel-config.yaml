@@ -1,0 +1,23 @@
+# Configuración de Redis Sentinel para monitoreo y failover automático
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-sentinel-config
+  namespace: elixir
+data:
+  sentinel.conf: |
+    port 26379
+    dir /tmp
+    
+    sentinel monitor mymaster redis-service 6379 2
+    sentinel down-after-milliseconds mymaster 5000
+    sentinel parallel-syncs mymaster 1
+    sentinel failover-timeout mymaster 10000
+    sentinel deny-scripts-reconfig yes
+    
+    # Protección con contraseña (configurar según necesidades de seguridad)
+    # sentinel auth-pass mymaster <password>
+    
+    loglevel notice
+

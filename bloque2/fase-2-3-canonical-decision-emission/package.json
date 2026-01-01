@@ -1,0 +1,24 @@
+{
+  "name": "@elixir/bloque2-fase-2-3-canonical-decision-emission",
+  "version": "1.0.0",
+  "description": "Emisión de Decisión Canónica - FASE 2.3 - BLOQUE 2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "elixir",
+    "canonical-decision",
+    "emission",
+    "bloque2"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+

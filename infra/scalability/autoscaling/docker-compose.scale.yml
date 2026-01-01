@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  elixir-core:
+    image: elixir-core:latest
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+      - NODE_ENV=production
+      - CLUSTER_MODE=true
+      - WORKER_COUNT=4
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  whatsapp-edge:
+    image: whatsapp-edge:latest
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 5s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1.5G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    environment:
+      - NODE_ENV=production
+      - CLUSTER_MODE=true
+      - WORKER_COUNT=2
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  chat-orchestrator:
+    image: chat-orchestrator:latest
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    environment:
+      - NODE_ENV=production
+      - CLUSTER_MODE=true
+    networks:
+      - elixir-network
+
+networks:
+  elixir-network:
+    driver: overlay
+    attachable: true
+

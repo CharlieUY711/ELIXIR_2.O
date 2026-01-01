@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "report_type": "post_optimization_comparison",
+    "generated_at": "2024-01-XX",
+    "phase": "6.4",
+    "description": "Comparación de métricas de rendimiento antes y después de las optimizaciones implementadas",
+    "optimization_date": "2024-01-XX",
+    "monitoring_period_days": 7
+  },
+  "comparison": {
+    "before_optimization": {
+      "baseline_date": "2024-01-XX",
+      "metrics": {
+        "cpu": {
+          "avg_usage_percent": null,
+          "max_usage_percent": null,
+          "min_usage_percent": null,
+          "notes": "Valores a completar con datos del análisis previo"
+        },
+        "memory": {
+          "avg_usage_percent": null,
+          "avg_used_gb": null,
+          "max_used_gb": null,
+          "notes": "Valores a completar con datos del análisis previo"
+        },
+        "disk": {
+          "avg_usage_percent": null,
+          "notes": "Valores a completar con datos del análisis previo"
+        },
+        "http": {
+          "avg_response_time_ms": null,
+          "min_response_time_ms": null,
+          "max_response_time_ms": null,
+          "total_requests": null,
+          "success_rate_percent": null,
+          "notes": "Valores a completar con datos del análisis previo"
+        },
+        "system": {
+          "process_count_avg": null,
+          "boot_time_seconds": null,
+          "notes": "Valores a completar con datos del análisis previo"
+        }
+      },
+      "source_report": "performance_analysis_report_BEFORE_YYYYMMDD_HHMMSS.json"
+    },
+    "after_optimization": {
+      "baseline_date": "2024-01-XX",
+      "metrics": {
+        "cpu": {
+          "avg_usage_percent": null,
+          "max_usage_percent": null,
+          "min_usage_percent": null,
+          "notes": "Valores a completar con datos del análisis posterior"
+        },
+        "memory": {
+          "avg_usage_percent": null,
+          "avg_used_gb": null,
+          "max_used_gb": null,
+          "notes": "Valores a completar con datos del análisis posterior"
+        },
+        "disk": {
+          "avg_usage_percent": null,
+          "notes": "Valores a completar con datos del análisis posterior"
+        },
+        "http": {
+          "avg_response_time_ms": null,
+          "min_response_time_ms": null,
+          "max_response_time_ms": null,
+          "total_requests": null,
+          "success_rate_percent": null,
+          "notes": "Valores a completar con datos del análisis posterior"
+        },
+        "system": {
+          "process_count_avg": null,
+          "boot_time_seconds": null,
+          "notes": "Valores a completar con datos del análisis posterior"
+        }
+      },
+      "source_report": "performance_analysis_report_AFTER_YYYYMMDD_HHMMSS.json"
+    }
+  },
+  "improvements": {
+    "cpu": {
+      "usage_reduction_percent": null,
+      "improvement_direction": "decrease",
+      "status": "pending",
+      "notes": "Se calcula automáticamente: (before - after) / before * 100"
+    },
+    "memory": {
+      "usage_reduction_percent": null,
+      "memory_saved_gb": null,
+      "improvement_direction": "decrease",
+      "status": "pending",
+      "notes": "Se calcula automáticamente"
+    },
+    "http": {
+      "response_time_improvement_percent": null,
+      "response_time_reduction_ms": null,
+      "improvement_direction": "decrease",
+      "status": "pending",
+      "notes": "Mejora = reducción en tiempo de respuesta"
+    },
+    "overall": {
+      "optimization_effectiveness": "pending",
+      "key_improvements": [],
+      "areas_requiring_attention": [],
+      "recommendations": []
+    }
+  },
+  "analysis": {
+    "summary": "Análisis de comparación pendiente. Complete los valores de métricas antes y después para generar el análisis automático.",
+    "methodology": {
+      "baseline_measurement": "Métricas recopiladas antes de implementar optimizaciones",
+      "post_optimization_measurement": "Métricas recopiladas después de implementar optimizaciones y período de estabilización",
+      "comparison_window": "Mismo período del día, condiciones similares de carga",
+      "statistical_significance": "Se recomienda múltiples mediciones para validar mejoras"
+    },
+    "findings": [],
+    "conclusions": "Pendiente de completar con datos reales"
+  },
+  "next_steps": [
+    "Completar métricas 'before_optimization' con datos del análisis previo",
+    "Completar métricas 'after_optimization' con datos del análisis posterior",
+    "Calcular mejoras automáticamente o manualmente",
+    "Validar que las mejoras son estadísticamente significativas",
+    "Documentar hallazgos y conclusiones",
+    "Identificar áreas adicionales de optimización si es necesario"
+  ]
+}
+

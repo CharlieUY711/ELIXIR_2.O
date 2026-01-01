@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "description": "Configuración de optimización de rendimiento para ELIXIR 2.0 - Fase 6.3",
+  "timestamp": "2024-01-15T00:00:00Z",
+  "optimizations": {
+    "nodejs": {
+      "memory": {
+        "max_old_space_size": 4096,
+        "description": "Aumenta el límite de memoria heap de Node.js a 4GB para procesos intensivos",
+        "impact": "Reduce garbage collection frecuente y mejora rendimiento en operaciones de alto volumen"
+      },
+      "gc": {
+        "expose_gc": true,
+        "gc_interval": 30000,
+        "description": "Habilita control manual de garbage collection y establece intervalo recomendado",
+        "impact": "Permite optimización de memoria en momentos críticos"
+      },
+      "v8": {
+        "optimize_for_size": false,
+        "max_semi_space_size": 64,
+        "description": "Optimiza V8 para rendimiento sobre tamaño, aumenta espacio semi-generacional",
+        "impact": "Mejora rendimiento de ejecución a costa de mayor uso de memoria"
+      }
+    },
+    "process": {
+      "priority": {
+        "core_service": "high",
+        "edge_service": "normal",
+        "cli_tools": "below_normal",
+        "description": "Ajusta prioridad de procesos según criticidad del servicio",
+        "impact": "Garantiza recursos CPU para servicios críticos como el Core"
+      },
+      "cpu_affinity": {
+        "core_service": "dedicated_cores",
+        "description": "Asigna núcleos dedicados para el servicio Core en entornos de producción",
+        "impact": "Reduce contención de CPU y mejora latencia predecible"
+      }
+    },
+    "typescript": {
+      "compilation": {
+        "incremental": true,
+        "isolated_modules": true,
+        "skip_lib_check": true,
+        "description": "Habilita compilación incremental y optimizaciones de TypeScript",
+        "impact": "Reduce tiempo de compilación en desarrollo y build"
+      },
+      "emit": {
+        "remove_comments": true,
+        "source_map": false,
+        "description": "Optimiza tamaño de archivos generados deshabilitando source maps en producción",
+        "impact": "Reduce tamaño de artefactos y mejora tiempo de carga"
+      }
+    },
+    "runtime": {
+      "event_loop": {
+        "max_listeners": 20,
+        "description": "Aumenta límite de listeners para evitar warnings en operaciones concurrentes",
+        "impact": "Previene degradación por límites de event loop"
+      },
+      "timeouts": {
+        "default_keep_alive": 5000,
+        "default_timeout": 30000,
+        "description": "Configura timeouts apropiados para conexiones HTTP",
+        "impact": "Mejora manejo de conexiones y reduce recursos colgados"
+      }
+    }
+  },
+  "applied_to": [
+    "core",
+    "services/whatsapp-edge",
+    "apps/decision-cli"
+  ],
+  "notes": [
+    "Las optimizaciones de memoria deben ajustarse según el hardware disponible",
+    "La prioridad de procesos requiere permisos administrativos en algunos sistemas",
+    "Las optimizaciones de TypeScript mejoran principalmente tiempo de desarrollo"
+  ]
+}
+

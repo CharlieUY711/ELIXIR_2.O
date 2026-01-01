@@ -1,0 +1,195 @@
+# Alertas Críticas para ELIXIR 2.0
+# Para Prometheus Alertmanager
+
+groups:
+  - name: critical_alerts
+    interval: 30s
+    rules:
+      # Alta latencia
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: critical
+          service: '{{ $labels.service }}'
+        annotations:
+          summary: "Alta latencia detectada en {{ $labels.service }}"
+          description: "El P95 de latencia es {{ $value }}s (umbral: 1s) en {{ $labels.service }}"
+
+      # Alto error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: '{{ $labels.service }}'
+        annotations:
+          summary: "Alto porcentaje de errores en {{ $labels.service }}"
+          description: "El error rate es {{ $value | humanizePercentage }} (umbral: 5%) en {{ $labels.service }}"
+
+      # CPU alto
+      - alert: HighCPUUsage
+        expr: avg(rate(container_cpu_usage_seconds_total[5m])) by (pod) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: '{{ $labels.pod }}'
+        annotations:
+          summary: "Alto uso de CPU en {{ $labels.pod }}"
+          description: "El uso de CPU es {{ $value | humanizePercentage }} (umbral: 90%) en {{ $labels.pod }}"
+
+      # Memoria alta
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: '{{ $labels.pod }}'
+        annotations:
+          summary: "Alto uso de memoria en {{ $labels.pod }}"
+          description: "El uso de memoria es {{ $value | humanizePercentage }} (umbral: 90%) en {{ $labels.pod }}"
+
+      # Base de datos sin réplicas
+      - alert: DatabaseReplicasDown
+        expr: pg_replication_lag_seconds > 60
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Réplicas de base de datos con retraso"
+          description: "El lag de replicación es {{ $value }}s (umbral: 60s)"
+
+      # Servicio caído
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: '{{ $labels.job }}'
+        annotations:
+          summary: "Servicio {{ $labels.job }} está caído"
+          description: "El servicio {{ $labels.job }} no está respondiendo desde hace más de 1 minuto"
+
+      # Redis sin memoria
+      - alert: RedisOutOfMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.95
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis cerca del límite de memoria"
+          description: "Redis está usando {{ $value | humanizePercentage }} de su memoria disponible"
+
+      # Conexiones de base de datos agotadas
+      - alert: DatabaseConnectionsExhausted
+        expr: (pg_stat_database_numbackends / pg_settings_max_connections) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Conexiones de base de datos cerca del límite"
+          description: "Se están usando {{ $value | humanizePercentage }} de las conexiones disponibles"
+
+  - name: performance_alerts
+    interval: 1m
+    rules:
+      # Throughput bajo
+      - alert: LowThroughput
+        expr: rate(http_requests_total[5m]) < 10
+        for: 10m
+        labels:
+          severity: info
+          service: '{{ $labels.service }}'
+        annotations:
+          summary: "Throughput bajo en {{ $labels.service }}"
+          description: "El throughput es {{ $value }} req/s en {{ $labels.service }}"
+
+      # Queries lentas
+      - alert: SlowQueries
+        expr: pg_stat_statements_mean_exec_time > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queries lentas detectadas"
+          description: "El tiempo promedio de ejecución de queries es {{ $value }}s"
+
+  - name: redundancy_alerts
+    interval: 30s
+    rules:
+      # Pods insuficientes
+      - alert: InsufficientPods
+        expr: count(up{job=~"elixir-core|chat-orchestrator|whatsapp-edge"} == 1) < 2
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Número insuficiente de pods disponibles"
+          description: "Solo {{ $value }} pod(s) están disponibles, se requieren al menos 2"
+          
+      # Réplicas de base de datos caídas
+      - alert: DatabaseReplicaDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          instance: '{{ $labels.instance }}'
+        annotations:
+          summary: "Réplica de base de datos caída: {{ $labels.instance }}"
+          description: "La réplica de PostgreSQL {{ $labels.instance }} no está respondiendo"
+          
+      # Redis master caído
+      - alert: RedisMasterDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          instance: '{{ $labels.instance }}'
+        annotations:
+          summary: "Redis master caído: {{ $labels.instance }}"
+          description: "El nodo Redis master {{ $labels.instance }} no está respondiendo"
+          
+      # Circuit breaker abierto
+      - alert: CircuitBreakerOpen
+        expr: circuit_breaker_state == 1
+        for: 30s
+        labels:
+          severity: warning
+          service: '{{ $labels.service }}'
+        annotations:
+          summary: "Circuit breaker abierto en {{ $labels.service }}"
+          description: "El circuit breaker está abierto para {{ $labels.service }}, las solicitudes están siendo rechazadas"
+          
+      # Health check fallando
+      - alert: HealthCheckFailing
+        expr: health_check_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: '{{ $labels.service }}'
+        annotations:
+          summary: "Health check fallando en {{ $labels.service }}"
+          description: "El health check de {{ $labels.service }} ha fallado durante más de 1 minuto"
+          
+      # Backup fallido
+      - alert: BackupFailed
+        expr: backup_status == 0
+        for: 5m
+        labels:
+          severity: warning
+          backup_type: '{{ $labels.type }}'
+        annotations:
+          summary: "Backup fallido: {{ $labels.type }}"
+          description: "El backup de {{ $labels.type }} ha fallado"
+          
+      # Replicación geográfica con retraso
+      - alert: GeoReplicationLag
+        expr: geo_replication_lag_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+          region: '{{ $labels.region }}'
+        annotations:
+          summary: "Retraso en replicación geográfica hacia {{ $labels.region }}"
+          description: "El lag de replicación geográfica es {{ $value }}s (umbral: 300s)"
+

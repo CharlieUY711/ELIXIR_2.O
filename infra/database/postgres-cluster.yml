@@ -1,0 +1,170 @@
+# Configuración de PostgreSQL Cluster con Alta Disponibilidad
+# Para ELIXIR 2.0 - Arquitectura Escalable
+
+version: '3.8'
+
+services:
+  # PostgreSQL Primary (Master)
+  postgres-primary:
+    image: postgres:15-alpine
+    container_name: postgres-primary
+    environment:
+      POSTGRES_DB: elixir
+      POSTGRES_USER: elixir_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_REPLICATION_USER: replicator
+      POSTGRES_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+    command: >
+      postgres
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c hba_file=/etc/postgresql/pg_hba.conf
+      -c wal_level=replica
+      -c max_wal_senders=3
+      -c max_replication_slots=3
+      -c hot_standby=on
+    ports:
+      - "5432:5432"
+    networks:
+      - elixir-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elixir_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL Replica 1
+  postgres-replica-1:
+    image: postgres:15-alpine
+    container_name: postgres-replica-1
+    environment:
+      POSTGRES_DB: elixir
+      POSTGRES_USER: elixir_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGUSER: replicator
+      POSTGRES_MASTER_SERVICE: postgres-primary
+    volumes:
+      - postgres-replica-1-data:/var/lib/postgresql/data
+    command: >
+      bash -c "
+      until pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U replicator -v -P -W; do
+        echo 'Waiting for primary to be available...'
+        sleep 1s
+      done
+      echo 'standby_mode = '\''on'\''' >> /var/lib/postgresql/data/postgresql.conf
+      echo 'primary_conninfo = '\''host=postgres-primary port=5432 user=replicator'\''' >> /var/lib/postgresql/data/postgresql.conf
+      postgres
+      "
+    ports:
+      - "5433:5432"
+    networks:
+      - elixir-network
+    depends_on:
+      - postgres-primary
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elixir_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL Replica 2
+  postgres-replica-2:
+    image: postgres:15-alpine
+    container_name: postgres-replica-2
+    environment:
+      POSTGRES_DB: elixir
+      POSTGRES_USER: elixir_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGUSER: replicator
+      POSTGRES_MASTER_SERVICE: postgres-primary
+    volumes:
+      - postgres-replica-2-data:/var/lib/postgresql/data
+    command: >
+      bash -c "
+      until pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U replicator -v -P -W; do
+        echo 'Waiting for primary to be available...'
+        sleep 1s
+      done
+      echo 'standby_mode = '\''on'\''' >> /var/lib/postgresql/data/postgresql.conf
+      echo 'primary_conninfo = '\''host=postgres-primary port=5432 user=replicator'\''' >> /var/lib/postgresql/data/postgresql.conf
+      postgres
+      "
+    ports:
+      - "5434:5432"
+    networks:
+      - elixir-network
+    depends_on:
+      - postgres-primary
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elixir_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PgBouncer para Connection Pooling
+  pgbouncer:
+    image: pgbouncer/pgbouncer:latest
+    container_name: pgbouncer
+    environment:
+      DATABASES_HOST: postgres-primary
+      DATABASES_PORT: 5432
+      DATABASES_USER: elixir_user
+      DATABASES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASES_DBNAME: elixir
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: 1000
+      PGBOUNCER_DEFAULT_POOL_SIZE: 25
+      PGBOUNCER_MIN_POOL_SIZE: 5
+      PGBOUNCER_RESERVE_POOL_SIZE: 5
+      PGBOUNCER_RESERVE_POOL_TIMEOUT: 3
+      PGBOUNCER_MAX_DB_CONNECTIONS: 0
+      PGBOUNCER_MAX_USER_CONNECTIONS: 0
+    ports:
+      - "6432:6432"
+    networks:
+      - elixir-network
+    depends_on:
+      - postgres-primary
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "6432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Patroni para Alta Disponibilidad (opcional, para producción)
+  patroni:
+    image: patroni/patroni:latest
+    container_name: patroni
+    environment:
+      PATRONI_SCOPE: elixir-cluster
+      PATRONI_NAME: patroni-1
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: patroni:8008
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: patroni:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      PATRONI_SUPERUSER_USERNAME: postgres
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_POSTGRESQL_PGPASS: /tmp/pgpass
+    volumes:
+      - patroni-data:/var/lib/postgresql/data
+    ports:
+      - "8008:8008"
+    networks:
+      - elixir-network
+
+volumes:
+  postgres-primary-data:
+  postgres-replica-1-data:
+  postgres-replica-2-data:
+  patroni-data:
+
+networks:
+  elixir-network:
+    external: true
+

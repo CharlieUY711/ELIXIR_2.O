@@ -1,0 +1,29 @@
+{
+  "AutoScalingGroupName": "elixir-core-asg",
+  "MinSize": 2,
+  "MaxSize": 10,
+  "DesiredCapacity": 3,
+  "VPCZoneIdentifier": "subnet-xxx,subnet-yyy",
+  "LaunchTemplate": {
+    "LaunchTemplateId": "lt-xxx",
+    "Version": "$Latest"
+  },
+  "HealthCheckType": "ELB",
+  "HealthCheckGracePeriod": 300,
+  "TargetGroupARNs": [
+    "arn:aws:elasticloadbalancing:region:account:targetgroup/elixir-core-tg/xxx"
+  ],
+  "Tags": [
+    {
+      "Key": "Name",
+      "Value": "elixir-core",
+      "PropagateAtLaunch": true
+    },
+    {
+      "Key": "Environment",
+      "Value": "production",
+      "PropagateAtLaunch": true
+    }
+  ]
+}
+

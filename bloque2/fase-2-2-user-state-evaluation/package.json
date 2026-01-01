@@ -1,0 +1,24 @@
+{
+  "name": "@elixir/bloque2-fase-2-2-user-state-evaluation",
+  "version": "1.0.0",
+  "description": "Evaluación de Estado del Usuario - FASE 2.2 - BLOQUE 2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "elixir",
+    "user-state",
+    "evaluation",
+    "bloque2"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+

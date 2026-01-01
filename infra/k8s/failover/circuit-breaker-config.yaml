@@ -1,0 +1,58 @@
+# Configuración de Circuit Breaker para Failover Automático
+# Para ELIXIR 2.0 - Fase 7.5: Redundancia y Recuperación
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: circuit-breaker-config
+  namespace: elixir
+data:
+  circuit-breaker.yml: |
+    # Configuración de Circuit Breaker
+    circuitBreakers:
+      # Circuit Breaker para base de datos
+      database:
+        enabled: true
+        failureThreshold: 5
+        timeout: 5000
+        resetTimeout: 30000
+        halfOpenRequests: 3
+        monitoringPeriod: 60000
+        
+      # Circuit Breaker para Redis
+      redis:
+        enabled: true
+        failureThreshold: 5
+        timeout: 3000
+        resetTimeout: 20000
+        halfOpenRequests: 2
+        monitoringPeriod: 60000
+        
+      # Circuit Breaker para servicios externos
+      externalServices:
+        enabled: true
+        failureThreshold: 10
+        timeout: 10000
+        resetTimeout: 60000
+        halfOpenRequests: 5
+        monitoringPeriod: 120000
+        
+    # Configuración de Retry
+    retry:
+      maxAttempts: 3
+      initialInterval: 1000
+      maxInterval: 10000
+      multiplier: 2
+      retryableStatusCodes:
+        - 500
+        - 502
+        - 503
+        - 504
+        
+    # Configuración de Timeout
+    timeouts:
+      default: 5000
+      database: 3000
+      redis: 2000
+      external: 10000
+

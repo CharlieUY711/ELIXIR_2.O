@@ -1,0 +1,94 @@
+# Configuración de Prometheus para monitoreo de métricas
+# Recolecta métricas de los servicios y Redis
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'elixir-production'
+    environment: 'production'
+
+# Configuración de alertas
+rule_files:
+  - "alerts.yml"
+
+# Configuración de scraping
+scrape_configs:
+  # Métricas de Prometheus mismo
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Métricas de Elixir Core
+  - job_name: 'elixir-core'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - elixir
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: elixir-core
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        action: replace
+        target_label: __address__
+        replacement: $1:3000
+    metrics_path: '/metrics'
+
+  # Métricas de WhatsApp Edge
+  - job_name: 'whatsapp-edge'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - elixir
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: whatsapp-edge
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        action: replace
+        target_label: __address__
+        replacement: $1:3001
+    metrics_path: '/metrics'
+
+  # Métricas de Chat Orchestrator
+  - job_name: 'chat-orchestrator'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - elixir
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: chat-orchestrator
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        action: replace
+        target_label: __address__
+        replacement: $1:3002
+    metrics_path: '/metrics'
+
+  # Métricas de Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    metrics_path: '/metrics'
+
+  # Métricas de Node Exporter (métricas del sistema)
+  - job_name: 'node-exporter'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: node-exporter
+        action: keep
+
+# Configuración de Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
