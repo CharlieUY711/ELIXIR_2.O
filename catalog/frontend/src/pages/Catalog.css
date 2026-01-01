@@ -29,7 +29,7 @@
   font-size: 24px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: #ffffff;
+  color: #ffd700;
   text-transform: uppercase;
 }
 
@@ -45,11 +45,11 @@
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(3, auto);
-  gap: 32px;
+  gap: 3.5mm;
   width: auto;
   max-width: 100%;
   padding: 0;
-  align-items: center;
+  align-items: start;
   justify-items: center;
   justify-content: center;
   margin: 0 auto;
@@ -57,18 +57,16 @@
 
 .model-card {
   position: relative;
-  width: 60%;
-  aspect-ratio: 3 / 4;
+  width: 413px;
+  aspect-ratio: 1 / 1.636;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 24px;
-  border: 2px solid #ffffff;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
-  justify-self: center;
 }
 
 .model-card:hover {
@@ -107,23 +105,27 @@
 
 .model-badges {
   position: absolute;
-  bottom: 32px;
-  left: 32px;
-  right: 32px;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
+  align-items: center;
+  gap: 12px;
   z-index: 2;
 }
 
 .model-badge-name {
-  display: inline-block;
-  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 115px;
+  height: 30px;
+  padding: 0;
   background-color: #000000;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   border-radius: 8px;
   white-space: nowrap;
@@ -131,11 +133,15 @@
 }
 
 .model-badge-status {
-  display: inline-block;
-  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 115px;
+  height: 30px;
+  padding: 0;
   background-color: #ff6b35;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   border: 2px solid #ff6b35;
   border-radius: 8px;
@@ -223,9 +229,9 @@
 
 @media (max-width: 1200px) {
   .catalog-grid {
-    grid-template-columns: repeat(3, auto);
+    grid-template-columns: repeat(3, 1fr);
     padding: 0;
-    gap: 32px;
+    gap: 3.5mm;
   }
 }
 
@@ -235,9 +241,9 @@
   }
 
   .catalog-grid {
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: repeat(2, 1fr);
     padding: 0;
-    gap: 32px;
+    gap: 3.5mm;
   }
 
   .catalog-header {
@@ -270,7 +276,7 @@
   .catalog-grid {
     grid-template-columns: auto;
     padding: 0;
-    gap: 32px;
+    gap: 3.5mm;
   }
 
   .catalog-header {
@@ -278,7 +284,7 @@
   }
 
   .model-card {
-    aspect-ratio: 2 / 3;
+    aspect-ratio: 1 / 1.636;
   }
 
   .model-content {

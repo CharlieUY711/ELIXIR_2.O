@@ -4,46 +4,46 @@ import './Catalog.css';
 interface Model {
   id: string;
   alias: string;
-  description: string;
+  status: string;
   imageUrl: string;
 }
 
 const mockModels: Model[] = [
   {
     id: '1',
-    alias: 'Modelo Alpha',
-    description: 'Asistente conversacional especializado',
-    imageUrl: 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Modelo+Alpha'
+    alias: 'Luna',
+    status: 'En línea',
+    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&crop=faces'
   },
   {
     id: '2',
-    alias: 'Modelo Beta',
-    description: 'Experto en análisis y consultoría',
-    imageUrl: 'https://via.placeholder.com/300x400/8b5cf6/ffffff?text=Modelo+Beta'
+    alias: 'Marcus',
+    status: 'Disponible',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=faces'
   },
   {
     id: '3',
-    alias: 'Modelo Gamma',
-    description: 'Especialista en contenido creativo',
-    imageUrl: 'https://via.placeholder.com/300x400/ec4899/ffffff?text=Modelo+Gamma'
+    alias: 'Kai',
+    status: 'Reciente',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=faces'
   },
   {
     id: '4',
-    alias: 'Modelo Delta',
-    description: 'Asistente técnico y soporte',
-    imageUrl: 'https://via.placeholder.com/300x400/14b8a6/ffffff?text=Modelo+Delta'
+    alias: 'Sofia',
+    status: 'En línea',
+    imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=faces'
   },
   {
     id: '5',
-    alias: 'Modelo Epsilon',
-    description: 'Consultor estratégico y planificación',
-    imageUrl: 'https://via.placeholder.com/300x400/f59e0b/ffffff?text=Modelo+Epsilon'
+    alias: 'Alex',
+    status: 'Disponible',
+    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=faces'
   },
   {
     id: '6',
-    alias: 'Modelo Zeta',
-    description: 'Especialista en investigación',
-    imageUrl: 'https://via.placeholder.com/300x400/ef4444/ffffff?text=Modelo+Zeta'
+    alias: 'Zara',
+    status: 'Reciente',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=faces'
   }
 ];
 
@@ -70,7 +70,7 @@ const Catalog: React.FC = () => {
                 <div className="model-content">
                   <div className="model-badges">
                     <span className="model-badge-name">{model.alias}</span>
-                    <span className="model-badge-status">Disponible</span>
+                    <span className="model-badge-status">{model.status}</span>
                   </div>
                 </div>
               </div>
