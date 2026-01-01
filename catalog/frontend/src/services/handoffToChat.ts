@@ -1,6 +1,5 @@
-const URL_CHAT = "CHAT_URL_PLACEHOLDER";
-
+// Placeholder - No funcional en maqueta
 export const handoffToChat = () => {
-  window.location.href = URL_CHAT;
+  // No-op para maqueta visual
 };
 
