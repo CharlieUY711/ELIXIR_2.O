@@ -69,6 +69,30 @@ Introducir cobros sin romper el sistema.
 - Marketing público
 - Promociones
 
+#### Presencia visual pasiva (Brand Seeding)
+
+##### Objetivo
+- Introducir nombre e identidad visual
+- Generar familiaridad sin expectativa
+
+##### Permitido
+- Mostrar logo
+- Mostrar nombre "Elixir"
+- Uso de identidad visual
+
+##### Prohibido
+- Explicar el producto
+- Prometer funcionalidades
+- Mencionar modelos
+- Mostrar contenido explícito
+- CTA o llamados a la acción
+- Mensajes comerciales o legales
+
+##### Nota
+- Esta etapa NO constituye campaña
+- NO habilita registro público
+- NO reemplaza la campaña ética posterior
+
 #### Métricas observadas
 - Comprensión del pago
 - Flujo de cobro
