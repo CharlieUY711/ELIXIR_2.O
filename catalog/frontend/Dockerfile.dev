@@ -1,0 +1,22 @@
+# Dockerfile para el Catálogo Frontend - Desarrollo
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY vite.config.ts ./
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar código fuente
+COPY . .
+
+# Exponer puerto de Vite
+EXPOSE 5173
+
+# Iniciar servidor de desarrollo
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
