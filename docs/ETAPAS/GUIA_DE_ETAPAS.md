@@ -26,6 +26,25 @@ ETAPA 1 — PRODUCTO VIVO SIN DINERO
 (DÍAS 1–30)
 --------------------------------
 
+Las duraciones son orientativas.
+Cada bloque puede extenderse, pausarse o detener la etapa completa.
+No constituyen compromisos de calendario.
+
+Bloque 1 — Base operativa mínima
+Estimación de duración: 5–7 días
+
+Bloque 2 — Chat p2p controlado
+Estimación de duración: 4–6 días
+
+Bloque 3 — Media mínima y visibilidad
+Estimación de duración: 3–4 días
+
+Bloque 4 — Uso real curado
+Estimación de duración: 5–7 días
+
+Bloque 5 — Observación y cierre
+Estimación de duración: 2–3 días
+
 Objetivo:
 - Validar uso real sin monetización
 
