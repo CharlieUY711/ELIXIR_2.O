@@ -1,0 +1,150 @@
+LISTADO COMPLETO DE FOTOS USADAS EN EL CATÁLOGO
+================================================
+
+MODELO: Luna (alias: 'Luna')
+-----------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=faces
+3. https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop&crop=faces
+4. https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Luna_01012026_F01.jpg (portada)
+- Luna_01012026_F02.jpg
+- Luna_01012026_F03.jpg
+- Luna_01012026_F04.jpg
+
+
+MODELO: Marcus (alias: 'Marcus')
+---------------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Marcus_01012026_F01.jpg (portada)
+- Marcus_01012026_F02.jpg
+
+
+MODELO: Kai (alias: 'Kai')
+---------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Kai_01012026_F01.jpg (portada)
+- Kai_01012026_F02.jpg
+
+
+MODELO: Sofia (alias: 'Sofia')
+-------------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Sofia_01012026_F01.jpg (portada)
+- Sofia_01012026_F02.jpg
+
+
+MODELO: Alex (alias: 'Alex')
+------------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Alex_01012026_F01.jpg (portada)
+- Alex_01012026_F02.jpg
+
+
+MODELO: Zara (alias: 'Zara')
+------------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Zara_01012026_F01.jpg (portada)
+- Zara_01012026_F02.jpg
+
+
+MODELO: Maya (alias: 'Maya')
+------------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Maya_01012026_F01.jpg (portada)
+- Maya_01012026_F02.jpg
+
+
+MODELO: Noah (alias: 'Noah')
+-----------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Noah_01012026_F01.jpg (portada)
+- Noah_01012026_F02.jpg
+
+
+MODELO: Elena (alias: 'Elena')
+-------------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Elena_01012026_F01.jpg (portada)
+- Elena_01012026_F02.jpg
+
+
+MODELO: Ryan (alias: 'Ryan')
+-----------------------------
+Portada (imageUrl):
+https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=600&fit=crop&crop=faces
+
+Galería (images):
+1. https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=600&fit=crop&crop=faces
+2. https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=faces
+
+Nombres sugeridos para descargar:
+- Ryan_01012026_F01.jpg (portada)
+- Ryan_01012026_F02.jpg
+
+
+TOTAL: 10 modelos con sus respectivas fotos
+============================================
+

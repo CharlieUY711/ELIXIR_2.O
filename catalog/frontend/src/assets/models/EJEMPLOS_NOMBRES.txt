@@ -1,0 +1,83 @@
+NOMBRES DE ARCHIVOS REQUERIDOS PARA CADA MODELO
+================================================
+
+Coloca las imágenes en esta carpeta con estos nombres exactos:
+
+MODELO: Luna
+-----------
+Luna_01012026_F01.jpg (o .png, .webp)
+Luna_01012026_F02.jpg
+Luna_01012026_F03.jpg
+Luna_01012026_F04.jpg
+... (puedes agregar más con F05, F06, etc.)
+
+MODELO: Marcus
+--------------
+Marcus_01012026_F01.jpg
+Marcus_01012026_F02.jpg
+Marcus_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Kai
+-----------
+Kai_01012026_F01.jpg
+Kai_01012026_F02.jpg
+Kai_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Sofia
+-------------
+Sofia_01012026_F01.jpg
+Sofia_01012026_F02.jpg
+Sofia_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Alex
+------------
+Alex_01012026_F01.jpg
+Alex_01012026_F02.jpg
+Alex_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Zara
+------------
+Zara_01012026_F01.jpg
+Zara_01012026_F02.jpg
+Zara_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Maya
+------------
+Maya_01012026_F01.jpg
+Maya_01012026_F02.jpg
+Maya_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Noah
+------------
+Noah_01012026_F01.jpg
+Noah_01012026_F02.jpg
+Noah_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Elena
+-------------
+Elena_01012026_F01.jpg
+Elena_01012026_F02.jpg
+Elena_01012026_F03.jpg
+... (puedes agregar más)
+
+MODELO: Ryan
+------------
+Ryan_01012026_F01.jpg
+Ryan_01012026_F02.jpg
+Ryan_01012026_F03.jpg
+... (puedes agregar más)
+
+NOTAS IMPORTANTES:
+- El nombre del modelo debe coincidir EXACTAMENTE con el alias en el código
+- La fecha puede ser cualquier fecha en formato YYYYMMDD
+- El número de frame (F01, F02, etc.) se usa para ordenar las imágenes
+- Formatos soportados: .jpg, .jpeg, .png, .webp
+- Las imágenes se cargarán automáticamente al iniciar el servidor
+
