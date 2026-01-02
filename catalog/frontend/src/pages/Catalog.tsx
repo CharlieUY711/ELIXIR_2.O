@@ -89,7 +89,9 @@ const Catalog: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [wasExpandedBeforeVideo, setWasExpandedBeforeVideo] = useState(false);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const expandedVideoRef = useRef<HTMLVideoElement>(null);
 
   const handleCardClick = (model: Model) => {
     setSelectedModel(model);
@@ -102,6 +104,13 @@ const Catalog: React.FC = () => {
 
   const closeExpanded = () => {
     setExpandedImage(null);
+  };
+
+  const closeExpandedVideo = () => {
+    setExpandedVideo(null);
+    if (expandedVideoRef.current) {
+      expandedVideoRef.current.pause();
+    }
   };
 
   const handleCloseDetail = () => {
@@ -275,8 +284,8 @@ const Catalog: React.FC = () => {
                             onPause={() => setIsPlaying(false)}
                             onDoubleClick={(e) => {
                               e.stopPropagation();
-                              if (selectedModel) {
-                                setExpandedImage(selectedModel.imageUrl);
+                              if (currentVideo) {
+                                setExpandedVideo(currentVideo);
                               }
                             }}
                             loop
@@ -427,7 +436,39 @@ const Catalog: React.FC = () => {
       </div>
       {expandedImage && (
         <div className="image-overlay" onClick={closeExpanded}>
+          <button 
+            className="overlay-close-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeExpanded();
+            }}
+            title="Cerrar"
+          >
+            ←
+          </button>
           <img src={expandedImage} alt="Expanded" />
+        </div>
+      )}
+      {expandedVideo && (
+        <div className="image-overlay" onClick={closeExpandedVideo}>
+          <button 
+            className="overlay-close-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeExpandedVideo();
+            }}
+            title="Cerrar"
+          >
+            ←
+          </button>
+          <video 
+            ref={expandedVideoRef}
+            src={expandedVideo}
+            className="expanded-video"
+            controls
+            autoPlay
+            loop
+          />
         </div>
       )}
     </>
@@ -470,7 +511,39 @@ const Catalog: React.FC = () => {
       </div>
       {expandedImage && (
         <div className="image-overlay" onClick={closeExpanded}>
+          <button 
+            className="overlay-close-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeExpanded();
+            }}
+            title="Cerrar"
+          >
+            ←
+          </button>
           <img src={expandedImage} alt="Expanded" />
+        </div>
+      )}
+      {expandedVideo && (
+        <div className="image-overlay" onClick={closeExpandedVideo}>
+          <button 
+            className="overlay-close-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeExpandedVideo();
+            }}
+            title="Cerrar"
+          >
+            ←
+          </button>
+          <video 
+            ref={expandedVideoRef}
+            src={expandedVideo}
+            className="expanded-video"
+            controls
+            autoPlay
+            loop
+          />
         </div>
       )}
     </>

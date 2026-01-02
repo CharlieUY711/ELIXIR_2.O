@@ -896,22 +896,57 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px;
   cursor: pointer;
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .image-overlay img {
-  all: unset;
-  max-width: 66vw;
-  max-height: 80vh;
+  max-width: calc(400px * 2 + 3mm);
+  max-height: 90vh;
   width: auto;
   height: auto;
   object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.expanded-video {
+  max-width: calc(400px * 2 + 3mm);
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  pointer-events: auto;
+}
+
+.overlay-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1001;
+  padding: 8px;
+  line-height: 1;
+}
+
+.overlay-close-btn:hover {
+  color: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
 }
 
 .model-badge-name {
